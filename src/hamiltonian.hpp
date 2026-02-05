@@ -3,20 +3,10 @@
 
 #include "Physis.hpp"
 #include "hamiltonian_j.hpp"
+#include "derivatives.hpp"
+
 
 using namespace std;
-
-
-
-static void precompute_derivatives(
-    const Physis& sys,
-    const std::vector<dcomplex>& fH0,
-    std::vector<dcomplex>& fk,
-    std::vector<dcomplex>& fkk,
-    std::vector<dcomplex>& fl,
-    std::vector<dcomplex>& fll,
-    std::vector<dcomplex>& flk
-);
 
 
 /*double compute_f_r_pc(
