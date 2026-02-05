@@ -1,0 +1,4 @@
+/home/mleitao/projeto/build/CMakeFiles/physis.dir
+/home/mleitao/projeto/build/CMakeFiles/main.dir
+/home/mleitao/projeto/build/CMakeFiles/edit_cache.dir
+/home/mleitao/projeto/build/CMakeFiles/rebuild_cache.dir

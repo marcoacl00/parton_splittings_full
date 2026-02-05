@@ -1,0 +1,67 @@
+cmake_minimum_required(VERSION 3.16)
+project(physis LANGUAGES CXX CUDA)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Enable OpenMP
+find_package(OpenMP REQUIRED)
+
+# Enable CUDA if available
+find_package(CUDA QUIET)
+if(CUDA_FOUND)
+    message(STATUS "CUDA found, compiling GPU sources")
+    enable_language(CUDA)
+endif()
+
+# Collect CPU sources (.cpp/.c)
+file(GLOB_RECURSE PHYSIS_CPU_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.c
+)
+
+# Collect GPU sources (.cu)
+file(GLOB_RECURSE PHYSIS_GPU_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cu
+)
+
+# Merge sources
+set(PHYSIS_SOURCES ${PHYSIS_CPU_SOURCES})
+if(CUDA_FOUND)
+    list(APPEND PHYSIS_SOURCES ${PHYSIS_GPU_SOURCES})
+endif()
+
+# Add library
+add_library(physis ${PHYSIS_SOURCES})
+
+# Include directories
+target_include_directories(physis PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/bessel-library
+)
+
+# Link OpenMP
+target_link_libraries(physis PUBLIC OpenMP::OpenMP_CXX)
+
+# Compiler options for CPU
+target_compile_options(physis PRIVATE -O3 -ffast-math -funroll-loops)
+
+# CUDA-specific flags
+if(CUDA_FOUND)
+    target_compile_options(physis PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
+        -O3 -Xcompiler -ffast-math,-funroll-loops --expt-relaxed-constexpr  --extended-lambda
+    >)
+endif()
+
+# Main executable
+add_executable(main full_sim.cpp)
+
+# Ensure main has the same include dirs and compile options as physis
+target_link_libraries(main PRIVATE physis OpenMP::OpenMP_CXX)
+
+# Explicitly set the C++ standard
+set_target_properties(main PROPERTIES
+    CXX_STANDARD 20
+    CXX_STANDARD_REQUIRED ON
+)
+
