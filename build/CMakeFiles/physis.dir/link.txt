@@ -1,2 +1,2 @@
-/usr/bin/ar qc libphysis.a CMakeFiles/physis.dir/src/Physis.cpp.o CMakeFiles/physis.dir/src/Physis_J.cpp.o CMakeFiles/physis.dir/src/faber.cpp.o CMakeFiles/physis.dir/src/hamiltonian.cpp.o CMakeFiles/physis.dir/src/hamiltonian_j.cpp.o CMakeFiles/physis.dir/src/tests.cpp.o
+/usr/bin/ar qc libphysis.a CMakeFiles/physis.dir/src/Physis.cpp.o CMakeFiles/physis.dir/src/Physis_J.cpp.o CMakeFiles/physis.dir/src/derivatives.cpp.o CMakeFiles/physis.dir/src/faber.cpp.o CMakeFiles/physis.dir/src/hamiltonian.cpp.o CMakeFiles/physis.dir/src/hamiltonian_j.cpp.o CMakeFiles/physis.dir/src/tests.cpp.o
 /usr/bin/ranlib libphysis.a

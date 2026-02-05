@@ -6,7 +6,7 @@ using dcomplex = complex<double>;
 const double PI = 3.141592653589793;
 
 
-static void precompute_derivatives(
+void precompute_derivatives_3d(
     const Physis& sys,
     const std::vector<dcomplex>& fH0,
     std::vector<dcomplex>& fk,
@@ -46,8 +46,9 @@ static void precompute_derivatives(
     fpl.assign(fH0.size(), dcomplex(0.0, 0.0));
     fpk.assign(fH0.size(), dcomplex(0.0, 0.0));
 
-    //#pragma omp parallel for schedule(dynamic, 8) if(fH0.size() > 64)
+    
     for(int s = 0; s < Nsig; s++){
+        #pragma omp parallel for
         for (int idx = 0; idx < Npsi * Nk * Nl; ++idx) {
             int ip = idx / (Nl * Nk);
             int il = (idx / Nk) % Nl;

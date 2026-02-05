@@ -5,7 +5,7 @@
 
 using namespace std;
 
-static void precompute_derivatives(
+void precompute_derivatives_3d(
     const Physis& sys,
     const std::vector<dcomplex>& fH0,
     std::vector<dcomplex>& fk,

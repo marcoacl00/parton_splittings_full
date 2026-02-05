@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
     Physis sis_f(E, z, qtilde, Lk, Ll, mu, mode, vertex, Nc_mode);
     // set dimensions
     sis.set_dim(512);
-    sis_f.set_dim(80, 60, 6);
+    sis_f.set_dim(120, 40, 6);
 
 
     // initialize the solution

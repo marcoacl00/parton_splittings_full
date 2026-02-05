@@ -82,7 +82,7 @@ private:
 
 // Global precomputed Gauss-Legendre quadrature points (initialize once)
 static const GaussLegendre GL_RADIAL(6);  
-static const GaussLegendre GL_ANGULAR(32); 
+static const GaussLegendre GL_ANGULAR(16); 
 
 inline dcomplex quad1D(
     double t,           // normalized coordinate in [0,1]
@@ -232,52 +232,60 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
             else{return VHO_eff(p, mu);}
         };
 
+    // precompute derivatives
+    std::vector<dcomplex> fk, fkk, fl, fll, flk, fp, fpp, fpk, fpl;
+    precompute_derivatives_3d(sys, fH0, fk, fkk, fl, fll, fp, fpp, flk, fpl, fpk);
+
+
 
     // trilinear sampler over (psi, k, l) using sys.idx(sig, ip, ik, il)
-    auto sample_triquadratic = [&](int sig, double psi, double k, double l) -> dcomplex {
-
-    // --- hard domain check ---
-    if (psi < psi_min || psi > psi_max ||
-        k   < k_min   || k   > k_max   ||
-        l   < l_min   || l   > l_max) {
-        return dcomplex(0.0, 0.0);
-    }
-
-    // Find central indices
-    int ip = int((psi - psi_min) * inv_dpsi);
-    int ik = int((k   - k_min)   * inv_dk);
-    int il = int((l   - l_min)   * inv_dl);
-
-    // Clamp so ip-1, ip, ip+1 are valid
-    ip = std::clamp(ip, 1, Npsi - 2);
-    ik = std::clamp(ik, 1, Nk   - 2);
-    il = std::clamp(il, 1, Nl   - 2);
-
-    // Centered normalized coordinates in [-1,1]
-    double tp = (psi - psi_array[ip]) / (psi_array[ip+1] - psi_array[ip]);
-    double tk = (k   - K_array[ik])   / (K_array[ik+1]   - K_array[ik]);
-    double tl = (l   - L_array[il])   / (L_array[il+1]   - L_array[il]);
-
-    // Step 1: quadratic in psi → 3×3 values
-    dcomplex g[3][3];
-    for (int dl = -1; dl <= 1; ++dl) {
-        for (int dk = -1; dk <= 1; ++dk) {
-            const dcomplex f0 = fH0[sys.idx(sig, ip-1, il+dl, ik+dk)];
-            const dcomplex f1 = fH0[sys.idx(sig, ip,   il+dl, ik+dk)];
-            const dcomplex f2 = fH0[sys.idx(sig, ip+1, il+dl, ik+dk)];
-            g[dl+1][dk+1] = quad1D(tp, f0, f1, f2);
+    auto get_fval = [&](int sig, double psi, double k, double l) -> dcomplex {
+        // --- hard domain check ---
+        if (psi < psi_min || psi > psi_max ||
+            k   < k_min   || k   > k_max   ||
+            l   < l_min   || l   > l_max) {
+            return dcomplex(0.0, 0.0);
         }
-    }
-
-    // Step 2: quadratic in l → 3 values
-    dcomplex h[3];
-    for (int dk = 0; dk < 3; ++dk) {
-        h[dk] = quad1D(tl, g[0][dk], g[1][dk], g[2][dk]);
-    }
-
-    // Step 3: quadratic in k → final value
-    return quad1D(tk, h[0], h[1], h[2]);
-};
+        
+        // Find nearest grid point to (psi, k, l)
+        int ip = std::min(static_cast<int>((psi - psi_min) * inv_dpsi), Npsi - 2);
+        int ik = std::min(static_cast<int>((k - k_min) * inv_dk), Nk - 2);
+        int il = std::min(static_cast<int>((l - l_min) * inv_dl), Nl - 2);
+        
+        // Compute dimensionless offsets from grid point
+        double t_psi = (psi - psi_array[ip]);
+        double t_k = (k - K_array[ik]) ;
+        double t_l = (l - L_array[il]);
+        
+        // Load function and derivatives at grid point
+        dcomplex f000 = fH0[sys.idx(sig, ip, il, ik)];
+        
+        // First derivatives
+        dcomplex f_psi = fp[sys.idx(sig, ip, il, ik)];   // ∂f/∂ψ
+        dcomplex f_k   = fk[sys.idx(sig, ip, il, ik)];   // ∂f/∂k
+        dcomplex f_l   = fl[sys.idx(sig, ip, il, ik)];   // ∂f/∂l
+        
+        // Second derivatives (pure)
+        dcomplex f_psipsi = fpp[sys.idx(sig, ip, il, ik)];  // ∂²f/∂ψ²
+        dcomplex f_kk     = fkk[sys.idx(sig, ip, il, ik)];  // ∂²f/∂k²
+        dcomplex f_ll     = fll[sys.idx(sig, ip, il, ik)];  // ∂²f/∂l²
+        
+        // Second derivatives (mixed)
+        dcomplex f_psik = fpk[sys.idx(sig, ip, il, ik)];  // ∂²f/∂ψ∂k
+        dcomplex f_psil = fpl[sys.idx(sig, ip, il, ik)];  // ∂²f/∂ψ∂l
+        dcomplex f_kl   = flk[sys.idx(sig, ip, il, ik)];  // ∂²f/∂k∂l
+        
+        // Second-order Taylor expansion
+        dcomplex fval = f000 
+            + f_psi * t_psi + 0.5 * f_psipsi * t_psi * t_psi
+            + f_k   * t_k   + 0.5 * f_kk     * t_k   * t_k
+            + f_l   * t_l   + 0.5 * f_ll     * t_l   * t_l
+            + f_psik * t_psi * t_k 
+            + f_psil * t_psi * t_l 
+            + f_kl   * t_k   * t_l;
+        
+        return fval;
+    };
 
 
 
@@ -345,13 +353,13 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
             // Potential contribution (only if both samples are valid)
             dcomplex S0_contrib(0.0, 0.0);
             if (in_domain_1) {
-                dcomplex f0_kmp_lmp = sample_triquadratic(0, angle_pmk_lmp, Rp_m_k, Rp_m_l);
+                dcomplex f0_kmp_lmp = get_fval(0, angle_pmk_lmp, Rp_m_k, Rp_m_l);
                 //dcomplex f0_kpp_lmp = sample_trilinear(0, angle_ppk_lmp, Rp_p_k, Rp_m_l);
                 S0_contrib += 2.0 * CF * (f - f0_kmp_lmp);
             }
 
             if(in_domain_2) {
-                dcomplex f0_kpp_lmp = sample_triquadratic(0, angle_ppk_lmp, Rp_p_k, Rp_m_l);
+                dcomplex f0_kpp_lmp = get_fval(0, angle_ppk_lmp, Rp_p_k, Rp_m_l);
                 S0_contrib += 2.0 * CF * (f - f0_kpp_lmp);
             }
 
@@ -472,7 +480,7 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
 
             dcomplex M10_contrib(0.0, 0.0);
             if (d1) {
-                dcomplex f0_kmp_lmp = sample_triquadratic(0, angle_pmk_lmp, Rp_m_k, Rp_m_l);
+                dcomplex f0_kmp_lmp = get_fval(0, angle_pmk_lmp, Rp_m_k, Rp_m_l);
                 //dcomplex f0_kpp_lmp = sample_trilinear(0, angle_ppk_lmp, Rp_p_k, Rp_m_l);
                 //dcomplex f0_pmk_l2zp = sample_trilinear(0, angle_pmk_l2zp, Rp_m_k, R_l_m_2z_p);
                 //dcomplex f0_pmk_l2_1zp = sample_trilinear(0, angle_pmk_l2_1zp, Rp_m_k, R_l_m_2_1z_p);
@@ -480,17 +488,17 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
             }
 
             if (d2) {
-                dcomplex f0_kpp_lmp = sample_triquadratic(0, angle_ppk_lmp, Rp_p_k, Rp_m_l);
+                dcomplex f0_kpp_lmp = get_fval(0, angle_ppk_lmp, Rp_p_k, Rp_m_l);
                 M10_contrib += CA * (f_ - f0_kpp_lmp);
             }
 
             if (d3) {
-                dcomplex f0_pmk_l2zp = sample_triquadratic(0, angle_pmk_l2zp, Rp_m_k, R_l_m_2z_p);
+                dcomplex f0_pmk_l2zp = get_fval(0, angle_pmk_l2zp, Rp_m_k, R_l_m_2z_p);
                 M10_contrib += -CA * (f_ - f0_pmk_l2zp);
             }
 
             if (d4) {
-                dcomplex f0_pmk_l2_1zp = sample_triquadratic(0, angle_pmk_l2_1zp, Rp_m_k, R_l_m_2_1z_p);
+                dcomplex f0_pmk_l2_1zp = get_fval(0, angle_pmk_l2_1zp, Rp_m_k, R_l_m_2_1z_p);
                 M10_contrib += -CA * (f_ - f0_pmk_l2_1zp);
             }
 
@@ -513,13 +521,13 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
 
             dcomplex M11_contrib(0.0, 0.0);
             if (d5) {
-                dcomplex f1_k_zp_l = sample_triquadratic(1, angle_k_zp_l, R_k_zp, l);
+                dcomplex f1_k_zp_l = get_fval(1, angle_k_zp_l, R_k_zp, l);
                 //dcomplex f1_k_1zp_l = sample_trilinear(1, angle_k_1zp_l, R_k_1zp, l);
                 M11_contrib += 2.0 * CF * (f_ - f1_k_zp_l );
             }
 
             if (d6) {
-                dcomplex f1_k_1zp_l = sample_triquadratic(1, angle_k_1zp_l, R_k_1zp, l);
+                dcomplex f1_k_1zp_l = get_fval(1, angle_k_1zp_l, R_k_1zp, l);
                 M11_contrib += 2.0 * CF * (f_ - f1_k_1zp_l);
             }
 

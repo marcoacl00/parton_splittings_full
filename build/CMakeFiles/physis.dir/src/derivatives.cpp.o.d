@@ -1,7 +1,8 @@
-CMakeFiles/physis.dir/src/hamiltonian_j.cpp.o: \
- /home/marco/Workstation/Jet_Quenching/projeto_git/src/hamiltonian_j.cpp \
+CMakeFiles/physis.dir/src/derivatives.cpp.o: \
+ /home/marco/Workstation/Jet_Quenching/projeto_git/src/derivatives.cpp \
  /usr/include/stdc-predef.h \
- /home/marco/Workstation/Jet_Quenching/projeto_git/src/Physis_J.hpp \
+ /home/marco/Workstation/Jet_Quenching/projeto_git/src/derivatives.hpp \
+ /home/marco/Workstation/Jet_Quenching/projeto_git/src/Physis.hpp \
  /usr/include/c++/15.2.1/iostream \
  /usr/include/c++/15.2.1/bits/requires_hosted.h \
  /usr/include/c++/15.2.1/x86_64-pc-linux-gnu/bits/c++config.h \
@@ -344,4 +345,4 @@ CMakeFiles/physis.dir/src/hamiltonian_j.cpp.o: \
  /usr/include/c++/15.2.1/bits/fs_ops.h \
  /usr/include/c++/15.2.1/memory_resource /usr/include/c++/15.2.1/barrier \
  /usr/include/c++/15.2.1/latch /usr/include/c++/15.2.1/syncstream \
- /home/marco/Workstation/Jet_Quenching/projeto_git/src/hamiltonian_j.hpp
+ /home/marco/Workstation/Jet_Quenching/projeto_git/src/spline.h

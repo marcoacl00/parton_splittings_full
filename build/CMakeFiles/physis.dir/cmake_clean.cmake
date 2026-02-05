@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/physis.dir/src/Physis.cpp.o.d"
   "CMakeFiles/physis.dir/src/Physis_J.cpp.o"
   "CMakeFiles/physis.dir/src/Physis_J.cpp.o.d"
+  "CMakeFiles/physis.dir/src/derivatives.cpp.o"
+  "CMakeFiles/physis.dir/src/derivatives.cpp.o.d"
   "CMakeFiles/physis.dir/src/faber.cpp.o"
   "CMakeFiles/physis.dir/src/faber.cpp.o.d"
   "CMakeFiles/physis.dir/src/hamiltonian.cpp.o"
