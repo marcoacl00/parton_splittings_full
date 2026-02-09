@@ -298,7 +298,7 @@ vector<dcomplex> Hamiltonian_J(const Physis_J& sys,
     
     vector<dcomplex> HF(fH0.size(), dcomplex(0.0, 0.0));
 
-    const double CF = 4.0 / 3.0;
+    const double CF = 1.5; //4.0 / 3.0;
     const double CA = 3.0;
 
     // Precompute derivatives 

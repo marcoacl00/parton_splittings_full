@@ -31,6 +31,8 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
       - "/bin/"
     searched_directories:
       - "/opt/cuda/bin/uname"
@@ -46,6 +48,10 @@ events:
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
         - "/home/marco/bin"
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/home/marco/.cargo/bin"
         - "/usr/local/sbin"
         - "/usr/local/bin"
@@ -56,6 +62,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "message-v1"
     backtrace:
@@ -95,6 +103,8 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
     searched_directories:
       - "/opt/cuda/bin/gmake"
       - "/usr/bin/vendor_perl/gmake"
@@ -107,6 +117,8 @@ events:
       - "/usr/lib/jvm/default/bin/gmake"
       - "/usr/bin/site_perl/gmake"
       - "/usr/bin/core_perl/gmake"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/gmake"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/gmake"
       - "/opt/cuda/bin/make"
       - "/usr/bin/vendor_perl/make"
       - "/home/marco/bin/make"
@@ -116,6 +128,10 @@ events:
     found: "/usr/bin/make"
     search_context:
       ENV{PATH}:
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/opt/cuda/bin"
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
@@ -130,6 +146,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "find-v1"
     backtrace:
@@ -170,6 +188,8 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
     searched_directories:
       - "/opt/cuda/bin/c++"
       - "/usr/bin/vendor_perl/c++"
@@ -184,6 +204,10 @@ events:
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
         - "/home/marco/bin"
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/home/marco/.cargo/bin"
         - "/usr/local/sbin"
         - "/usr/local/bin"
@@ -194,6 +218,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "find-v1"
     backtrace:
@@ -225,6 +251,10 @@ events:
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
         - "/home/marco/bin"
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/home/marco/.cargo/bin"
         - "/usr/local/sbin"
         - "/usr/local/bin"
@@ -235,6 +265,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "message-v1"
     backtrace:
@@ -288,9 +320,15 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
     found: "/usr/bin/ar"
     search_context:
       ENV{PATH}:
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/opt/cuda/bin"
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
@@ -305,6 +343,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "find-v1"
     backtrace:
@@ -336,9 +376,15 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
     found: "/usr/bin/ranlib"
     search_context:
       ENV{PATH}:
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/opt/cuda/bin"
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
@@ -353,6 +399,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "find-v1"
     backtrace:
@@ -384,9 +432,15 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
     found: "/usr/bin/strip"
     search_context:
       ENV{PATH}:
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/opt/cuda/bin"
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
@@ -401,6 +455,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "find-v1"
     backtrace:
@@ -432,9 +488,15 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
     found: "/usr/bin/ld"
     search_context:
       ENV{PATH}:
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/opt/cuda/bin"
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
@@ -449,6 +511,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "find-v1"
     backtrace:
@@ -480,9 +544,15 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
     found: "/usr/bin/nm"
     search_context:
       ENV{PATH}:
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/opt/cuda/bin"
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
@@ -497,6 +567,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "find-v1"
     backtrace:
@@ -528,9 +600,15 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
     found: "/usr/bin/objdump"
     search_context:
       ENV{PATH}:
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/opt/cuda/bin"
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
@@ -545,6 +623,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "find-v1"
     backtrace:
@@ -576,9 +656,15 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
     found: "/usr/bin/objcopy"
     search_context:
       ENV{PATH}:
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/opt/cuda/bin"
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
@@ -593,6 +679,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "find-v1"
     backtrace:
@@ -624,9 +712,15 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
     found: "/usr/bin/readelf"
     search_context:
       ENV{PATH}:
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/opt/cuda/bin"
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
@@ -641,6 +735,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "find-v1"
     backtrace:
@@ -672,6 +768,8 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
     searched_directories:
       - "/usr/bin/dlltool"
       - "/opt/cuda/bin/dlltool"
@@ -684,9 +782,15 @@ events:
       - "/usr/lib/jvm/default/bin/dlltool"
       - "/usr/bin/site_perl/dlltool"
       - "/usr/bin/core_perl/dlltool"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/dlltool"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/dlltool"
     found: false
     search_context:
       ENV{PATH}:
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/opt/cuda/bin"
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
@@ -701,6 +805,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "find-v1"
     backtrace:
@@ -732,9 +838,15 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
     found: "/usr/bin/addr2line"
     search_context:
       ENV{PATH}:
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/opt/cuda/bin"
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
@@ -749,6 +861,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "find-v1"
     backtrace:
@@ -780,6 +894,8 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
     searched_directories:
       - "/usr/bin/tapi"
       - "/opt/cuda/bin/tapi"
@@ -792,9 +908,15 @@ events:
       - "/usr/lib/jvm/default/bin/tapi"
       - "/usr/bin/site_perl/tapi"
       - "/usr/bin/core_perl/tapi"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/tapi"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/tapi"
     found: false
     search_context:
       ENV{PATH}:
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/opt/cuda/bin"
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
@@ -809,6 +931,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "find-v1"
     backtrace:
@@ -843,6 +967,8 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
     searched_directories:
       - "/usr/bin/gcc-ar-15.2"
       - "/opt/cuda/bin/gcc-ar-15.2"
@@ -855,6 +981,8 @@ events:
       - "/usr/lib/jvm/default/bin/gcc-ar-15.2"
       - "/usr/bin/site_perl/gcc-ar-15.2"
       - "/usr/bin/core_perl/gcc-ar-15.2"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/gcc-ar-15.2"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/gcc-ar-15.2"
       - "/usr/bin/gcc-ar-15"
       - "/opt/cuda/bin/gcc-ar-15"
       - "/usr/bin/vendor_perl/gcc-ar-15"
@@ -866,6 +994,8 @@ events:
       - "/usr/lib/jvm/default/bin/gcc-ar-15"
       - "/usr/bin/site_perl/gcc-ar-15"
       - "/usr/bin/core_perl/gcc-ar-15"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/gcc-ar-15"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/gcc-ar-15"
       - "/usr/bin/gcc-ar15"
       - "/opt/cuda/bin/gcc-ar15"
       - "/usr/bin/vendor_perl/gcc-ar15"
@@ -877,9 +1007,15 @@ events:
       - "/usr/lib/jvm/default/bin/gcc-ar15"
       - "/usr/bin/site_perl/gcc-ar15"
       - "/usr/bin/core_perl/gcc-ar15"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/gcc-ar15"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/gcc-ar15"
     found: "/usr/bin/gcc-ar"
     search_context:
       ENV{PATH}:
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/opt/cuda/bin"
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
@@ -894,6 +1030,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "find-v1"
     backtrace:
@@ -928,6 +1066,8 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
     searched_directories:
       - "/usr/bin/gcc-ranlib-15.2"
       - "/opt/cuda/bin/gcc-ranlib-15.2"
@@ -940,6 +1080,8 @@ events:
       - "/usr/lib/jvm/default/bin/gcc-ranlib-15.2"
       - "/usr/bin/site_perl/gcc-ranlib-15.2"
       - "/usr/bin/core_perl/gcc-ranlib-15.2"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/gcc-ranlib-15.2"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/gcc-ranlib-15.2"
       - "/usr/bin/gcc-ranlib-15"
       - "/opt/cuda/bin/gcc-ranlib-15"
       - "/usr/bin/vendor_perl/gcc-ranlib-15"
@@ -951,6 +1093,8 @@ events:
       - "/usr/lib/jvm/default/bin/gcc-ranlib-15"
       - "/usr/bin/site_perl/gcc-ranlib-15"
       - "/usr/bin/core_perl/gcc-ranlib-15"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/gcc-ranlib-15"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/gcc-ranlib-15"
       - "/usr/bin/gcc-ranlib15"
       - "/opt/cuda/bin/gcc-ranlib15"
       - "/usr/bin/vendor_perl/gcc-ranlib15"
@@ -962,9 +1106,15 @@ events:
       - "/usr/lib/jvm/default/bin/gcc-ranlib15"
       - "/usr/bin/site_perl/gcc-ranlib15"
       - "/usr/bin/core_perl/gcc-ranlib15"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/gcc-ranlib15"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/gcc-ranlib15"
     found: "/usr/bin/gcc-ranlib"
     search_context:
       ENV{PATH}:
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/opt/cuda/bin"
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
@@ -979,6 +1129,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
   -
     kind: "try_compile-v1"
     backtrace:
@@ -988,8 +1140,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-YaFqSq"
-      binary: "/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-YaFqSq"
+      source: "/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-e4P6b9"
+      binary: "/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-e4P6b9"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: "-g"
@@ -999,13 +1151,13 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-YaFqSq'
+        Change Dir: '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-e4P6b9'
         
-        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_09013/fast
-        /usr/bin/make  -f CMakeFiles/cmTC_09013.dir/build.make CMakeFiles/cmTC_09013.dir/build
-        make[1]: Entering directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-YaFqSq'
-        Building CXX object CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o
-        /usr/bin/c++   -v -o CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_a86cb/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_a86cb.dir/build.make CMakeFiles/cmTC_a86cb.dir/build
+        make[1]: Entering directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-e4P6b9'
+        Building CXX object CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o
+        /usr/bin/c++   -v -o CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
         Using built-in specs.
         COLLECT_GCC=/usr/bin/c++
         Target: x86_64-pc-linux-gnu
@@ -1013,8 +1165,8 @@ events:
         Thread model: posix
         Supported LTO compression algorithms: zlib zstd
         gcc version 15.2.1 20260103 (GCC) 
-        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_09013.dir/'
-         /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/cc1plus -quiet -v -D_GNU_SOURCE /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_09013.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mtune=generic -march=x86-64 -version -o /tmp/ccrsWLSg.s
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_a86cb.dir/'
+         /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/cc1plus -quiet -v -D_GNU_SOURCE /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_a86cb.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mtune=generic -march=x86-64 -version -o /tmp/ccV5oqwx.s
         GNU C++17 (GCC) version 15.2.1 20260103 (x86_64-pc-linux-gnu)
         	compiled by GNU C version 15.2.1 20260103, GMP version 6.3.0, MPFR version 4.2.2, MPC version 1.3.1, isl version isl-0.27-GMP
         
@@ -1031,14 +1183,14 @@ events:
          /usr/include
         End of search list.
         Compiler executable checksum: 26247f000d0c5f9b837c76e00a033f94
-        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_09013.dir/'
-         as -v --64 -o CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o /tmp/ccrsWLSg.s
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_a86cb.dir/'
+         as -v --64 -o CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o /tmp/ccV5oqwx.s
         GNU assembler version 2.45.1 (x86_64-pc-linux-gnu) using BFD version (GNU Binutils) 2.45.1
         COMPILER_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/
         LIBRARY_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/:/lib/../lib/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../:/lib/:/usr/lib/
-        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.'
-        Linking CXX executable cmTC_09013
-        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_09013.dir/link.txt --verbose=1
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.'
+        Linking CXX executable cmTC_a86cb
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a86cb.dir/link.txt --verbose=1
         Using built-in specs.
         COLLECT_GCC=/usr/bin/c++
         COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper
@@ -1049,14 +1201,14 @@ events:
         gcc version 15.2.1 20260103 (GCC) 
         COMPILER_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/
         LIBRARY_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/:/lib/../lib/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../:/lib/:/usr/lib/
-        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_09013' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_09013.'
-         /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/collect2 -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper -plugin-opt=-fresolution=/tmp/ccDZqqf4.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -o cmTC_09013 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/Scrt1.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1 -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_a86cb' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_a86cb.'
+         /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/collect2 -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper -plugin-opt=-fresolution=/tmp/ccaqkuLc.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -o cmTC_a86cb /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/Scrt1.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1 -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
         collect2 version 15.2.1 20260103
-        /usr/bin/ld -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper -plugin-opt=-fresolution=/tmp/ccDZqqf4.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -o cmTC_09013 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/Scrt1.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1 -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+        /usr/bin/ld -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper -plugin-opt=-fresolution=/tmp/ccaqkuLc.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -o cmTC_a86cb /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/Scrt1.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1 -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
         GNU ld (GNU Binutils) 2.45.1
-        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_09013' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_09013.'
-        /usr/bin/c++  -v -Wl,-v CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_09013
-        make[1]: Leaving directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-YaFqSq'
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_a86cb' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_a86cb.'
+        /usr/bin/c++  -v -Wl,-v CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_a86cb
+        make[1]: Leaving directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-e4P6b9'
         
       exitCode: 0
   -
@@ -1097,13 +1249,13 @@ events:
       Parsed CXX implicit link information:
         link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
         linker tool regex: [^[ 	]*(->|"|[0-9]+>[ 	-]*Build:[ 	0-9]+ ms[ 	]*)?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)))("|,| |$)]
-        ignore line: [Change Dir: '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-YaFqSq']
+        ignore line: [Change Dir: '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-e4P6b9']
         ignore line: []
-        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_09013/fast]
-        ignore line: [/usr/bin/make  -f CMakeFiles/cmTC_09013.dir/build.make CMakeFiles/cmTC_09013.dir/build]
-        ignore line: [make[1]: Entering directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-YaFqSq']
-        ignore line: [Building CXX object CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o]
-        ignore line: [/usr/bin/c++   -v -o CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_a86cb/fast]
+        ignore line: [/usr/bin/make  -f CMakeFiles/cmTC_a86cb.dir/build.make CMakeFiles/cmTC_a86cb.dir/build]
+        ignore line: [make[1]: Entering directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-e4P6b9']
+        ignore line: [Building CXX object CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o]
+        ignore line: [/usr/bin/c++   -v -o CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
         ignore line: [Using built-in specs.]
         ignore line: [COLLECT_GCC=/usr/bin/c++]
         ignore line: [Target: x86_64-pc-linux-gnu]
@@ -1111,8 +1263,8 @@ events:
         ignore line: [Thread model: posix]
         ignore line: [Supported LTO compression algorithms: zlib zstd]
         ignore line: [gcc version 15.2.1 20260103 (GCC) ]
-        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_09013.dir/']
-        ignore line: [ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/cc1plus -quiet -v -D_GNU_SOURCE /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_09013.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mtune=generic -march=x86-64 -version -o /tmp/ccrsWLSg.s]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_a86cb.dir/']
+        ignore line: [ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/cc1plus -quiet -v -D_GNU_SOURCE /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_a86cb.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mtune=generic -march=x86-64 -version -o /tmp/ccV5oqwx.s]
         ignore line: [GNU C++17 (GCC) version 15.2.1 20260103 (x86_64-pc-linux-gnu)]
         ignore line: [	compiled by GNU C version 15.2.1 20260103  GMP version 6.3.0  MPFR version 4.2.2  MPC version 1.3.1  isl version isl-0.27-GMP]
         ignore line: []
@@ -1129,14 +1281,14 @@ events:
         ignore line: [ /usr/include]
         ignore line: [End of search list.]
         ignore line: [Compiler executable checksum: 26247f000d0c5f9b837c76e00a033f94]
-        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_09013.dir/']
-        ignore line: [ as -v --64 -o CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o /tmp/ccrsWLSg.s]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_a86cb.dir/']
+        ignore line: [ as -v --64 -o CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o /tmp/ccV5oqwx.s]
         ignore line: [GNU assembler version 2.45.1 (x86_64-pc-linux-gnu) using BFD version (GNU Binutils) 2.45.1]
         ignore line: [COMPILER_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/]
         ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/:/lib/../lib/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../:/lib/:/usr/lib/]
-        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.']
-        ignore line: [Linking CXX executable cmTC_09013]
-        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_09013.dir/link.txt --verbose=1]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.']
+        ignore line: [Linking CXX executable cmTC_a86cb]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a86cb.dir/link.txt --verbose=1]
         ignore line: [Using built-in specs.]
         ignore line: [COLLECT_GCC=/usr/bin/c++]
         ignore line: [COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper]
@@ -1147,13 +1299,13 @@ events:
         ignore line: [gcc version 15.2.1 20260103 (GCC) ]
         ignore line: [COMPILER_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/]
         ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/:/lib/../lib/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../:/lib/:/usr/lib/]
-        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_09013' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_09013.']
-        link line: [ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/collect2 -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper -plugin-opt=-fresolution=/tmp/ccDZqqf4.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -o cmTC_09013 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/Scrt1.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1 -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_a86cb' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_a86cb.']
+        link line: [ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/collect2 -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper -plugin-opt=-fresolution=/tmp/ccaqkuLc.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -o cmTC_a86cb /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/Scrt1.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1 -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o]
           arg [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/collect2] ==> ignore
           arg [-plugin] ==> ignore
           arg [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/liblto_plugin.so] ==> ignore
           arg [-plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper] ==> ignore
-          arg [-plugin-opt=-fresolution=/tmp/ccDZqqf4.res] ==> ignore
+          arg [-plugin-opt=-fresolution=/tmp/ccaqkuLc.res] ==> ignore
           arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
           arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
           arg [-plugin-opt=-pass-through=-lc] ==> ignore
@@ -1168,7 +1320,7 @@ events:
           arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
           arg [-pie] ==> ignore
           arg [-o] ==> ignore
-          arg [cmTC_09013] ==> ignore
+          arg [cmTC_a86cb] ==> ignore
           arg [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/Scrt1.o] ==> obj [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/Scrt1.o]
           arg [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o] ==> obj [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o]
           arg [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o] ==> obj [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o]
@@ -1180,7 +1332,7 @@ events:
           arg [-L/lib] ==> dir [/lib]
           arg [-L/usr/lib] ==> dir [/usr/lib]
           arg [-v] ==> ignore
-          arg [CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+          arg [CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
           arg [-lstdc++] ==> lib [stdc++]
           arg [-lm] ==> lib [m]
           arg [-lgcc_s] ==> lib [gcc_s]
@@ -1191,7 +1343,7 @@ events:
           arg [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o] ==> obj [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o]
           arg [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o] ==> obj [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o]
         ignore line: [collect2 version 15.2.1 20260103]
-        ignore line: [/usr/bin/ld -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper -plugin-opt=-fresolution=/tmp/ccDZqqf4.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -o cmTC_09013 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/Scrt1.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1 -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_09013.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o]
+        ignore line: [/usr/bin/ld -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper -plugin-opt=-fresolution=/tmp/ccaqkuLc.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -o cmTC_a86cb /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/Scrt1.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1 -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_a86cb.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o]
         linker tool for 'CXX': /usr/bin/ld
         collapse obj [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/Scrt1.o] ==> [/usr/lib/Scrt1.o]
         collapse obj [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o] ==> [/usr/lib/crti.o]
@@ -1227,8 +1379,8 @@ events:
       - "CMakeLists.txt:6 (find_package)"
     description: "Detecting CXX OpenMP compiler info"
     directories:
-      source: "/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-aXVT3I"
-      binary: "/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-aXVT3I"
+      source: "/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-G9sFgC"
+      binary: "/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-G9sFgC"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: "-g"
@@ -1237,15 +1389,15 @@ events:
       variable: "OpenMP_COMPILE_RESULT_CXX_fopenmp"
       cached: true
       stdout: |
-        Change Dir: '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-aXVT3I'
+        Change Dir: '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-G9sFgC'
         
-        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_0b029/fast
-        /usr/bin/make  -f CMakeFiles/cmTC_0b029.dir/build.make CMakeFiles/cmTC_0b029.dir/build
-        make[1]: Entering directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-aXVT3I'
-        Building CXX object CMakeFiles/cmTC_0b029.dir/OpenMPTryFlag.cpp.o
-        /usr/bin/c++   -fopenmp -std=gnu++20 -o CMakeFiles/cmTC_0b029.dir/OpenMPTryFlag.cpp.o -c /home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-aXVT3I/OpenMPTryFlag.cpp
-        Linking CXX executable cmTC_0b029
-        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0b029.dir/link.txt --verbose=1
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_8bbf5/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_8bbf5.dir/build.make CMakeFiles/cmTC_8bbf5.dir/build
+        make[1]: Entering directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-G9sFgC'
+        Building CXX object CMakeFiles/cmTC_8bbf5.dir/OpenMPTryFlag.cpp.o
+        /usr/bin/c++   -fopenmp -std=gnu++20 -o CMakeFiles/cmTC_8bbf5.dir/OpenMPTryFlag.cpp.o -c /home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-G9sFgC/OpenMPTryFlag.cpp
+        Linking CXX executable cmTC_8bbf5
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8bbf5.dir/link.txt --verbose=1
         Using built-in specs.
         COLLECT_GCC=/usr/bin/c++
         COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper
@@ -1257,11 +1409,11 @@ events:
         COMPILER_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/
         LIBRARY_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/:/lib/../lib/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../:/lib/:/usr/lib/
         Reading specs from /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgomp.spec
-        COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-o' 'cmTC_0b029' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'cmTC_0b029.'
-         /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/collect2 -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper -plugin-opt=-fresolution=/tmp/ccpclCMP.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -o cmTC_0b029 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/Scrt1.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1 -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../.. -L/lib -L/usr/lib CMakeFiles/cmTC_0b029.dir/OpenMPTryFlag.cpp.o -lstdc++ -lm -lgomp -lgcc_s -lgcc -lpthread -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
-        COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-o' 'cmTC_0b029' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'cmTC_0b029.'
-        /usr/bin/c++  -fopenmp -v CMakeFiles/cmTC_0b029.dir/OpenMPTryFlag.cpp.o -o cmTC_0b029
-        make[1]: Leaving directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-aXVT3I'
+        COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-o' 'cmTC_8bbf5' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'cmTC_8bbf5.'
+         /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/collect2 -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper -plugin-opt=-fresolution=/tmp/cc8cvcFD.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -o cmTC_8bbf5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/Scrt1.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1 -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../.. -L/lib -L/usr/lib CMakeFiles/cmTC_8bbf5.dir/OpenMPTryFlag.cpp.o -lstdc++ -lm -lgomp -lgcc_s -lgcc -lpthread -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+        COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-o' 'cmTC_8bbf5' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'cmTC_8bbf5.'
+        /usr/bin/c++  -fopenmp -v CMakeFiles/cmTC_8bbf5.dir/OpenMPTryFlag.cpp.o -o cmTC_8bbf5
+        make[1]: Leaving directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-G9sFgC'
         
       exitCode: 0
   -
@@ -1273,15 +1425,15 @@ events:
     message: |
       Parsed CXX OpenMP implicit link information from above output:
         link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
-        ignore line: [Change Dir: '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-aXVT3I']
+        ignore line: [Change Dir: '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-G9sFgC']
         ignore line: []
-        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_0b029/fast]
-        ignore line: [/usr/bin/make  -f CMakeFiles/cmTC_0b029.dir/build.make CMakeFiles/cmTC_0b029.dir/build]
-        ignore line: [make[1]: Entering directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-aXVT3I']
-        ignore line: [Building CXX object CMakeFiles/cmTC_0b029.dir/OpenMPTryFlag.cpp.o]
-        ignore line: [/usr/bin/c++   -fopenmp -std=gnu++20 -o CMakeFiles/cmTC_0b029.dir/OpenMPTryFlag.cpp.o -c /home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-aXVT3I/OpenMPTryFlag.cpp]
-        ignore line: [Linking CXX executable cmTC_0b029]
-        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0b029.dir/link.txt --verbose=1]
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_8bbf5/fast]
+        ignore line: [/usr/bin/make  -f CMakeFiles/cmTC_8bbf5.dir/build.make CMakeFiles/cmTC_8bbf5.dir/build]
+        ignore line: [make[1]: Entering directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-G9sFgC']
+        ignore line: [Building CXX object CMakeFiles/cmTC_8bbf5.dir/OpenMPTryFlag.cpp.o]
+        ignore line: [/usr/bin/c++   -fopenmp -std=gnu++20 -o CMakeFiles/cmTC_8bbf5.dir/OpenMPTryFlag.cpp.o -c /home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-G9sFgC/OpenMPTryFlag.cpp]
+        ignore line: [Linking CXX executable cmTC_8bbf5]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8bbf5.dir/link.txt --verbose=1]
         ignore line: [Using built-in specs.]
         ignore line: [COLLECT_GCC=/usr/bin/c++]
         ignore line: [COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper]
@@ -1293,13 +1445,13 @@ events:
         ignore line: [COMPILER_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/]
         ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/:/lib/../lib/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../:/lib/:/usr/lib/]
         ignore line: [Reading specs from /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgomp.spec]
-        ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-o' 'cmTC_0b029' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'cmTC_0b029.']
-        link line: [ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/collect2 -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper -plugin-opt=-fresolution=/tmp/ccpclCMP.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -o cmTC_0b029 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/Scrt1.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1 -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../.. -L/lib -L/usr/lib CMakeFiles/cmTC_0b029.dir/OpenMPTryFlag.cpp.o -lstdc++ -lm -lgomp -lgcc_s -lgcc -lpthread -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o]
+        ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-o' 'cmTC_8bbf5' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'cmTC_8bbf5.']
+        link line: [ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/collect2 -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper -plugin-opt=-fresolution=/tmp/cc8cvcFD.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -o cmTC_8bbf5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/Scrt1.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1 -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../.. -L/lib -L/usr/lib CMakeFiles/cmTC_8bbf5.dir/OpenMPTryFlag.cpp.o -lstdc++ -lm -lgomp -lgcc_s -lgcc -lpthread -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o]
           arg [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/collect2] ==> ignore
           arg [-plugin] ==> ignore
           arg [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/liblto_plugin.so] ==> ignore
           arg [-plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/lto-wrapper] ==> ignore
-          arg [-plugin-opt=-fresolution=/tmp/ccpclCMP.res] ==> ignore
+          arg [-plugin-opt=-fresolution=/tmp/cc8cvcFD.res] ==> ignore
           arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
           arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
           arg [-plugin-opt=-pass-through=-lpthread] ==> ignore
@@ -1315,7 +1467,7 @@ events:
           arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
           arg [-pie] ==> ignore
           arg [-o] ==> ignore
-          arg [cmTC_0b029] ==> ignore
+          arg [cmTC_8bbf5] ==> ignore
           arg [-L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1] ==> dir [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1]
           arg [-L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib] ==> dir [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib]
           arg [-L/lib/../lib] ==> dir [/lib/../lib]
@@ -1323,7 +1475,7 @@ events:
           arg [-L/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../..] ==> dir [/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../..]
           arg [-L/lib] ==> dir [/lib]
           arg [-L/usr/lib] ==> dir [/usr/lib]
-          arg [CMakeFiles/cmTC_0b029.dir/OpenMPTryFlag.cpp.o] ==> ignore
+          arg [CMakeFiles/cmTC_8bbf5.dir/OpenMPTryFlag.cpp.o] ==> ignore
           arg [-lstdc++] ==> lib [stdc++]
           arg [-lm] ==> lib [m]
           arg [-lgomp] ==> lib [gomp]
@@ -1380,6 +1532,8 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
       - "/usr/local/lib/"
       - "/usr/local/"
       - "/usr/lib/"
@@ -1401,6 +1555,10 @@ events:
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
         - "/home/marco/bin"
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/home/marco/.cargo/bin"
         - "/usr/local/sbin"
         - "/usr/local/bin"
@@ -1411,6 +1569,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
       CMAKE_INSTALL_PREFIX: "/usr/local"
       CMAKE_SYSTEM_PREFIX_PATH:
         - "/usr/local"
@@ -1457,6 +1617,8 @@ events:
       - "/usr/lib/jvm/default/bin/"
       - "/usr/bin/site_perl/"
       - "/usr/bin/core_perl/"
+      - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts/"
+      - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand/"
       - "/usr/local/lib/"
       - "/usr/local/"
       - "/usr/lib/"
@@ -1478,6 +1640,10 @@ events:
         - "/opt/cuda/bin"
         - "/usr/bin/vendor_perl"
         - "/home/marco/bin"
+        - "/opt/cuda/bin"
+        - "/opt/cuda/bin"
+        - "/usr/bin/vendor_perl"
+        - "/home/marco/bin"
         - "/home/marco/.cargo/bin"
         - "/usr/local/sbin"
         - "/usr/local/bin"
@@ -1488,6 +1654,8 @@ events:
         - "/usr/bin/site_perl"
         - "/usr/bin/vendor_perl"
         - "/usr/bin/core_perl"
+        - "/home/marco/.vscode/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts"
+        - "/home/marco/.config/Code/User/globalStorage/github.copilot-chat/debugCommand"
       CMAKE_INSTALL_PREFIX: "/usr/local"
       CMAKE_SYSTEM_PREFIX_PATH:
         - "/usr/local"
@@ -1508,8 +1676,8 @@ events:
       - "CMakeLists.txt:6 (find_package)"
     description: "Detecting CXX OpenMP version"
     directories:
-      source: "/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-nttwp3"
-      binary: "/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-nttwp3"
+      source: "/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-zRF0qU"
+      binary: "/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-zRF0qU"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: "-g"
@@ -1518,17 +1686,17 @@ events:
       variable: "OpenMP_SPECTEST_CXX_"
       cached: true
       stdout: |
-        Change Dir: '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-nttwp3'
+        Change Dir: '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-zRF0qU'
         
-        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_6ba32/fast
-        /usr/bin/make  -f CMakeFiles/cmTC_6ba32.dir/build.make CMakeFiles/cmTC_6ba32.dir/build
-        make[1]: Entering directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-nttwp3'
-        Building CXX object CMakeFiles/cmTC_6ba32.dir/OpenMPCheckVersion.cpp.o
-        /usr/bin/c++   -fopenmp -std=gnu++20 -o CMakeFiles/cmTC_6ba32.dir/OpenMPCheckVersion.cpp.o -c /home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-nttwp3/OpenMPCheckVersion.cpp
-        Linking CXX executable cmTC_6ba32
-        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6ba32.dir/link.txt --verbose=1
-        /usr/bin/c++  -fopenmp CMakeFiles/cmTC_6ba32.dir/OpenMPCheckVersion.cpp.o -o cmTC_6ba32
-        make[1]: Leaving directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-nttwp3'
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_e4fd1/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_e4fd1.dir/build.make CMakeFiles/cmTC_e4fd1.dir/build
+        make[1]: Entering directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-zRF0qU'
+        Building CXX object CMakeFiles/cmTC_e4fd1.dir/OpenMPCheckVersion.cpp.o
+        /usr/bin/c++   -fopenmp -std=gnu++20 -o CMakeFiles/cmTC_e4fd1.dir/OpenMPCheckVersion.cpp.o -c /home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-zRF0qU/OpenMPCheckVersion.cpp
+        Linking CXX executable cmTC_e4fd1
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e4fd1.dir/link.txt --verbose=1
+        /usr/bin/c++  -fopenmp CMakeFiles/cmTC_e4fd1.dir/OpenMPCheckVersion.cpp.o -o cmTC_e4fd1
+        make[1]: Leaving directory '/home/marco/Workstation/Jet_Quenching/projeto_git/build/CMakeFiles/CMakeScratch/TryCompile-zRF0qU'
         
       exitCode: 0
 ...

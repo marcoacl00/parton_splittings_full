@@ -23,10 +23,10 @@ int main(int argc, char* argv[]) {
     double E  = 100.0;
     double z = 0.5;
     double qtilde = 1.5;
-    double Lp =  3.0* E * z * (1 - z);
-    double Lk =  0.5 * Lp;
-    double Ll = 0.3 * Lk;
-    double mu = 0.1;
+    double Lp =  4.0* E * z * (1 - z);
+    double Lk =  0.325 * Lp;
+    double Ll = 0.3 *  Lk;
+    double mu = 0.6;
     string vertex = "gamma_qq";
     string Nc_mode = "LNc";
 
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
     else{
          file_name_2D = "./data/fsol_final_ho.dat";
         file_name_3D = "./data/fsol3D_final_ho.dat";
-        p_min_coeff = 3.0;
+        p_min_coeff = 4.0;
         p_max_coeff = 10.0;
     }
 
@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
     Physis sis_f(E, z, qtilde, Lk, Ll, mu, mode, vertex, Nc_mode);
     // set dimensions
     sis.set_dim(512);
-    sis_f.set_dim(120, 40, 6);
+    sis_f.set_dim(180, 60, 4);
 
 
     // initialize the solution
@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
     sis.set_pmax(p_max_coeff * sis.mu());
 
     sis_f.set_pmin(0);
-    sis_f.set_pmax(0.25 * p_max_coeff * sis.mu());
+    sis_f.set_pmax(0.1 * p_max_coeff * sis.mu());
 
     // define vector with times
     vector<double> time_list;
@@ -249,19 +249,25 @@ int main(int argc, char* argv[]) {
 
         // -------------------------------//
         // FULL 3D EVOLUTION STEP
-        //after completing the in-out contribution, we move to the full 3D evolution
+        // after completing the in-out contribution, we move to the full 3D evolution
         // in-out will be ued as source term for the full evolution
+        // -------------------------------//
 
-        auto nHom_f = sis_f.source_term(sis.P(), fsol_t_dt);  // source term at time t + ht
+        auto nHom_f = sis_f.source_term(sis.P(), fsol_t_dt, sis_f.t());  // source term at time t + ht
         //repeat logic for full 3D evolution
 
         // Simpson first term
         vector<dcomplex> nFsol_f = sis_f.Fsol();
         
         for(int sig = 0; sig < sis_f.Nsig(); ++sig){
-            int Ns = sig * sis_f.Nk() * sis_f.Nl() * sis_f.NPsi();
-            for (size_t k = 0; k < nFsol_f.size()/sis_f.Nsig(); ++k) {
-                nFsol_f[Ns + k] += nHom_f[k] * (1.0/6.0) * ht;
+            for(int ip = 0; ip < sis_f.NPsi(); ++ip){
+                for(int il = 0; il < sis_f.Nl(); ++il){
+                    for(int ik = 0; ik < sis_f.Nk(); ++ik){
+                        int idx = sis_f.idx(sig, ip, il, ik);
+                        int s_idx = sis_f.idx(0, ip, il, ik);
+                        nFsol_f[idx] += nHom_f[s_idx] * (ht / 6.0);
+                    }
+                }
             }
         }
 
@@ -270,33 +276,42 @@ int main(int argc, char* argv[]) {
         auto f_sol_n_f = faber_expand_full(sis_f, ht, gamma0_f, gamma1_f, one_lamb_1, coeff_array_f);
 
         // midpoint term
-        auto nHom_dt_2_f = sis_f.source_term(sis.P(), fsol_t_dt_2);  
+        auto nHom_dt_2_f = sis_f.source_term(sis.P(), fsol_t_dt_2, sis_f.t() + ht/2.0); // source term at time t + ht/2
 
-        Physis sis_aux_f = sis_f;
+        Physis sis_aux_f = sis_f; 
         // set fsol as the source term copied sig times
         vector<dcomplex> nHom_dt_2_f_copied(sis_f.Fsol().size(), dcomplex(0.0, 0.0));
         
         for(int sig = 0; sig < sis_f.Nsig(); ++sig){
-            int Ns = sig * sis_f.Nk() * sis_f.Nl() * sis_f.NPsi();
-            for(int k = 0; k < sis_f.Nk()* sis_f.Nl() * sis_f.NPsi(); ++k){
-                nHom_dt_2_f_copied[Ns + k] = nHom_dt_2_f[k];
+            for(int ip = 0; ip < sis_f.NPsi(); ++ip){
+                for(int il = 0; il < sis_f.Nl(); ++il){
+                    for(int ik = 0; ik < sis_f.Nk(); ++ik){
+                        int idx = sis_f.idx(sig, ip, il, ik);
+                        int s_idx = sis_f.idx(0, ip, il, ik);
+                        nHom_dt_2_f_copied[idx] = nHom_dt_2_f[s_idx];
+                    }
+                }
             }
         }
-
         sis_aux_f.set_fsol(nHom_dt_2_f_copied);
 
         auto f_term_2_f = faber_expand_full(sis_aux_f, ht/2.0, gamma0_f, gamma1_f, one_lamb_1, coeff_array_2_f);
 
         // final non-homogeneous
-        auto nHom_end_f = sis_f.source_term(sis.P(), fsol_t);   
+        auto nHom_end_f = sis_f.source_term(sis.P(), fsol_t, sis_f.t() + ht);   
 
         // complete Simpson update
         vector<dcomplex> newFsol_f(f_sol_n_f.size(), dcomplex(0.0, 0.0));
 
         for (int sig = 0; sig < sis_f.Nsig(); ++sig){
-            int Ns = sig * sis_f.Nk() * sis_f.Nl() * sis_f.NPsi();
-            for (size_t k = 0; k < sis_f.Nk()* sis_f.Nl() * sis_f.NPsi(); ++k) {
-                newFsol_f[Ns + k] = f_sol_n_f[Ns + k] + (1.0 /6.0) * ht * nHom_end_f[k] + (4.0/6.0) * f_term_2_f[Ns + k] * ht;
+            for(int ip = 0; ip < sis_f.NPsi(); ++ip){
+                for(int il = 0; il < sis_f.Nl(); ++il){
+                    for(int ik = 0; ik < sis_f.Nk(); ++ik){
+                        int idx = sis_f.idx(sig, ip, il, ik);
+                        int s_idx = sis_f.idx(0, ip, il, ik);
+                        newFsol_f[idx] = f_sol_n_f[idx] + (4.0/6.0) * f_term_2_f[idx] * ht + nHom_end_f[s_idx] * (ht / 6.0);
+                    }
+                }
             }
         }
 
@@ -375,7 +390,7 @@ int main(int argc, char* argv[]) {
     ofstream ofs_f(file_name_3D);
 
     for (int ik = 0; ik < sis_f.Nk(); ++ik) {
-        ofs_f << " " << sis_f.Fsol()[sis_f.idx(0, 0, 0, ik)].real() << "\n";
+        ofs_f << " " << sis_f.Fsol()[sis_f.idx(1, 0, 0, ik)].real() << "\n";
     }
     ofs_f.close();
 

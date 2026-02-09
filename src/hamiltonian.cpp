@@ -19,10 +19,10 @@ double VHTL_eff(double q, double mu)
 }
 
 double VHO_eff(double q, double mu)
-{   double eps =mu;
+{   double eps = mu;
     double exp = std::exp(-q*q / (2 * eps*eps));
 
-    double fac = q *  1.0 / (4.0 * PI * PI * pow(eps, 4)) * (q*q  / (eps*eps)  - 2.0);
+    double fac = PI/4 *  1.0 / (2.0 * PI * pow(eps, 4)) * (q*q  / (eps*eps)  - 2.0);
 
 
     return exp * fac;
@@ -82,20 +82,7 @@ private:
 
 // Global precomputed Gauss-Legendre quadrature points (initialize once)
 static const GaussLegendre GL_RADIAL(6);  
-static const GaussLegendre GL_ANGULAR(16); 
-
-inline dcomplex quad1D(
-    double t,           // normalized coordinate in [0,1]
-    const dcomplex& f0, // i-1
-    const dcomplex& f1, // i
-    const dcomplex& f2  // i+1
-) {
-    // Lagrange basis on {-1,0,1}
-    double w0 = 0.5 * t * (t - 1.0);
-    double w1 = 1.0 - t * t;
-    double w2 = 0.5 * t * (t + 1.0);
-    return f0 * w0 + f1 * w1 + f2 * w2;
-}
+static const GaussLegendre GL_ANGULAR(6); 
 
 
 
@@ -154,7 +141,7 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
     
     // map Gauss-Legendre nodes from [-1,1] to integration domains
     // For radial: [pmin, pmax]
-    double split = 1.0 * mu;
+    double split = 0.75 * mu;
 
     vector<double> p1_nodes, p1_weights; // region [pmin, split]
     vector<double> p2_nodes, p2_weights; // region [split, pmax]
@@ -238,20 +225,21 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
 
 
 
-    // trilinear sampler over (psi, k, l) using sys.idx(sig, ip, ik, il)
+    // sampler with 2nd order Taylor expansion around nearest grid point, with hard domain checks
     auto get_fval = [&](int sig, double psi, double k, double l) -> dcomplex {
         // --- hard domain check ---
         if (psi < psi_min || psi > psi_max ||
-            k   < k_min   || k   > k_max   ||
-            l   < l_min   || l   > l_max) {
+            k   > k_max + delta_k ||
+            l   > l_max + delta_l) {
             return dcomplex(0.0, 0.0);
         }
         
         // Find nearest grid point to (psi, k, l)
-        int ip = std::min(static_cast<int>((psi - psi_min) * inv_dpsi), Npsi - 2);
-        int ik = std::min(static_cast<int>((k - k_min) * inv_dk), Nk - 2);
-        int il = std::min(static_cast<int>((l - l_min) * inv_dl), Nl - 2);
+        int ip = std::min(static_cast<int>((psi - psi_min) * inv_dpsi), Npsi - 1);
+        int ik = std::min(static_cast<int>((k - k_min) * inv_dk), Nk - 1);
+        int il = std::min(static_cast<int>((l - l_min) * inv_dl), Nl - 1);
         
+
         // Compute dimensionless offsets from grid point
         double t_psi = (psi - psi_array[ip]);
         double t_k = (k - K_array[ik]) ;
@@ -277,12 +265,12 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
         
         // Second-order Taylor expansion
         dcomplex fval = f000 
-            + f_psi * t_psi + 0.5 * f_psipsi * t_psi * t_psi
+            + 0.5 * f_psipsi * t_psi * t_psi
             + f_k   * t_k   + 0.5 * f_kk     * t_k   * t_k
-            + f_l   * t_l   + 0.5 * f_ll     * t_l   * t_l
-            + f_psik * t_psi * t_k 
+            + f_l   * t_l   + 0.5 * f_ll     * t_l   * t_l;
+            /*+ f_psik * t_psi * t_k 
             + f_psil * t_psi * t_l 
-            + f_kl   * t_k   * t_l;
+            + f_kl   * t_k   * t_l;  f_psi * t_psi*/
         
         return fval;
     };
@@ -291,248 +279,254 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
 
     // string vertex = sys.vertex(); <- this is not necessary since the function is already for qqbar
 
-    dcomplex prefac = - 1.0 / 8.0 * dcomplex(0, 1) * qtilde;
+    dcomplex prefac = -dcomplex(0, 1) * qtilde / (2.0 * PI); //temporarily with the 4 factor from the jacobian
 
-        if (!is_large_Nc) {
+    if (!is_large_Nc) {
         throw invalid_argument("Nc mode not implemented yet in Hamiltonian_qqbar");
     }
 
     // ============ sig = 0 ============
-    #pragma omp parallel for
-    for (int idx = 0; idx < Npsi * Nk * Nl; ++idx) {
-        int ip = idx / (Nl * Nk);
-        int il = (idx / Nk) % Nl;
-        int ik = idx % Nk;
+    #pragma omp parallel for collapse(3)
+    for (int ip = 0; ip < Npsi; ++ip) {
+        for (int il = 0; il < Nl; ++il) {
+            for (int ik = 0; ik < Nk; ++ik) {
 
-        double psi = psi_array[ip];
-        double cos_psi = cos_psi_array[ip];
-        double sin_psi = std::sqrt(std::max(0.0, 1.0 - cos_psi * cos_psi));
-        double k = K_array[ik];
-        double k2 = k * k;
-        double l = L_array[il];
-        double l2 = l * l;
-        double kl = k * l;
+                double psi = psi_array[ip];
+                double cos_psi = cos_psi_array[ip];
+                double sin_psi = std::sqrt(std::max(0.0, 1.0 - cos_psi * cos_psi));
+                double k = K_array[ik];
+                double k2 = k * k;
+                double l = L_array[il];
+                double l2 = l * l;
+                double kl = k * l;
+                auto current_idx = sys.idx(0, ip, il, ik);
 
-        dcomplex f = fH0[sys.idx(0, ip, il, ik)];
-        
-        HF[sys.idx(0, ip, il, ik)] = k * l * cos_psi / omega * f;   
+                dcomplex f = fH0[current_idx];
+                
+                HF[current_idx] = (k * l) / omega * cos_psi * f;
 
-        dcomplex sum_integral(0.0, 0.0);
+                dcomplex sum_integral(0.0, 0.0);
 
-        auto process_integration_point_sig0 = [&](double p, double w_p, double cos_th, double sin_th, double w_th) {
-            double p2 = p * p;
-            double kp = k * p;
-            double lp = l * p;
-            double Vp = V(p, mu);
-            double w_total = w_p * w_th;
-            double cos_theta_minus_psi = cos_th * cos_psi + sin_th * sin_psi;
+                auto process_integration_point_sig0 = [&](double p, double w_p, double cos_th, double sin_th, double w_th) {
+                    double p2 = p * p;
+                    double kp = k * p;
+                    double lp = l * p;
+                    double Vp = p * V(2.0 * p, mu);
+                    double w_total = w_p * w_th;
+                    double cos_theta_minus_psi = cos_th * cos_psi + sin_th * sin_psi;
 
+                    // Compute distances
+                    double Rp_m_k = std::sqrt(k2 + p2 - 2*kp*cos_th);
+                    double Rp_p_k = std::sqrt(k2 + p2 + 2*kp*cos_th);
+                    double Rp_m_l = (il == 0) ? p : std::sqrt(l2 + p2 - 2*lp*cos_theta_minus_psi);
 
-            // Compute distances
-            double Rp_m_k = std::sqrt(k2 + p2 - 2*kp*cos_th);
-            double Rp_p_k = std::sqrt(k2 + p2 + 2*kp*cos_th);
-            double Rp_m_l = (il == 0) ? p : std::sqrt(l2 + p2 - 2*lp*cos_theta_minus_psi);
+                    // ----- Compute angles ------
+                    
+                    // p-k, l-p samples
+                    double numer_pmk_lmp = (p2 - kp * cos_th - lp * cos_theta_minus_psi + kl * cos_psi);
+                    double cos_val_pmk_lmp = std::clamp(numer_pmk_lmp / (Rp_m_k * Rp_m_l + 1e-7), -1.0, 1.0);
+                    double angle_pmk_lmp = acos_spline(cos_val_pmk_lmp);
+                    
+                    // k+p, l-p samples
+                    double numer_ppk_lmp = -(p2 + kp * cos_th - lp * cos_theta_minus_psi) + kl * cos_psi;
+                    double cos_val_ppk_lmp = std::clamp(numer_ppk_lmp / (Rp_p_k * Rp_m_l + 1e-7), -1.0, 1.0);
+                    double angle_ppk_lmp = acos_spline(cos_val_ppk_lmp);
+                    
+                    // Sample with domain checks
+                    bool in_domain_1 = (Rp_m_k >= k_min && Rp_m_k <= k_max + delta_k && Rp_m_l >= l_min && Rp_m_l <= l_max + delta_l);
+                    bool in_domain_2 = (Rp_p_k >= k_min && Rp_p_k <= k_max + delta_k && Rp_m_l >= l_min && Rp_m_l <= l_max + delta_l);
 
-            // Compute angles
-            
-            
-            // p-k, l-p samples
-            double numer_pmk_lmp = (p2 - kp * cos_th - lp * cos_theta_minus_psi + kl * cos_psi);
-            double cos_val_pmk_lmp = std::clamp(numer_pmk_lmp / (Rp_m_k * Rp_m_l + 1e-7), -1.0, 1.0);
-            double angle_pmk_lmp = acos_spline(cos_val_pmk_lmp);
-            
-            // k+p, l-p samples
-            double numer_ppk_lmp = -(p2 + kp * cos_th - lp * cos_theta_minus_psi) + kl * cos_psi;
-            double cos_val_ppk_lmp = std::clamp(numer_ppk_lmp / (Rp_p_k * Rp_m_l + 1e-7), -1.0, 1.0);
-            double angle_ppk_lmp = acos_spline(cos_val_ppk_lmp);
-            
-            // Sample with domain checks
-            bool in_domain_1 = (Rp_m_k >= k_min && Rp_m_k <= k_max && Rp_m_l >= l_min && Rp_m_l <= l_max);
-            bool in_domain_2 = (Rp_p_k >= k_min && Rp_p_k <= k_max && Rp_m_l >= l_min && Rp_m_l <= l_max);
-            
-            // Potential contribution (only if both samples are valid)
-            dcomplex S0_contrib(0.0, 0.0);
-            if (in_domain_1) {
-                dcomplex f0_kmp_lmp = get_fval(0, angle_pmk_lmp, Rp_m_k, Rp_m_l);
-                //dcomplex f0_kpp_lmp = sample_trilinear(0, angle_ppk_lmp, Rp_p_k, Rp_m_l);
-                S0_contrib += 2.0 * CF * (f - f0_kmp_lmp);
-            }
+                    // Potential contribution (only if both samples are valid)
+                    dcomplex S0_contrib(0.0, 0.0);
+                    if (in_domain_1 && in_domain_2) {
+                        dcomplex f0_kmp_lmp = get_fval(0, angle_pmk_lmp, Rp_m_k, Rp_m_l);
+                        dcomplex f0_kpp_lmp = get_fval(0, angle_ppk_lmp, Rp_p_k, Rp_m_l);
+                        S0_contrib += 2.0 * CF * (2.0 * f - f0_kmp_lmp - f0_kpp_lmp);
+                    }
 
-            if(in_domain_2) {
-                dcomplex f0_kpp_lmp = get_fval(0, angle_ppk_lmp, Rp_p_k, Rp_m_l);
-                S0_contrib += 2.0 * CF * (f - f0_kpp_lmp);
-            }
+                    return S0_contrib * Vp * w_total;
+                };
 
-            return S0_contrib * Vp * w_total;
-        };
-
-        // Integrate over region 1: [a1,b1]
-        if (half1 > 0.0) {
-            for (int i = 0; i < n_radial; ++i) {
-                for (int j = 0; j < n_angular; ++j) {
-                    sum_integral += process_integration_point_sig0(
-                        p1_nodes[i], p1_weights[i], 
-                        cos_theta[j], sin_theta[j], theta_weights[j]
-                    );
+                // Integrate over region 1: [a1,b1]
+                /*if (half1 > 0.0) {
+                    for (int i = 0; i < n_radial; ++i) {
+                        for (int j = 0; j < n_angular; ++j) {
+                            sum_integral += process_integration_point_sig0(
+                                p1_nodes[i], p1_weights[i], 
+                                cos_theta[j], sin_theta[j], theta_weights[j]
+                            );
+                        }
+                    }
                 }
-            }
-        }
 
-        // Integrate over region 2: [a2,b2]
-        if (half2 > 0.0) {
-            for (int i = 0; i < n_radial; ++i) {
-                for (int j = 0; j < n_angular; ++j) {
-                    sum_integral += process_integration_point_sig0(
-                        p2_nodes[i], p2_weights[i], 
-                        cos_theta[j], sin_theta[j], theta_weights[j]
-                    );
+                // Integrate over region 2: [a2,b2]
+                if (half2 > 0.0) {
+                    for (int i = 0; i < n_radial; ++i) {
+                        for (int j = 0; j < n_angular; ++j) {
+                            sum_integral += process_integration_point_sig0(
+                                p2_nodes[i], p2_weights[i], 
+                                cos_theta[j], sin_theta[j], theta_weights[j]
+                            );
+                        }
+                    }
+                }*/
+                dcomplex laplacian_l;
+                if (il == 0){
+                    laplacian_l = 2.0 * fll[current_idx]; // at l=0, the function is psi-independent, so the laplacian reduces to the second derivative in l
                 }
-            }
+                else{
+                    laplacian_l = fll[current_idx]+ (1.0/l) * fl[current_idx] + (1.0)/(l*l) * fpp[current_idx];
+                }
+
+
+
+
+                //compute derivatives on the fly here
+                dcomplex laplacian_k = fkk[current_idx] + (1.0/k) * fk[current_idx] ;
+
+                HF[sys.idx(0, ip, il, ik)] += I * qtilde / 4.0 * 0.5 * CF * (laplacian_k + laplacian_l);
+            }}}
+
+            // Enforce psi-independence at l = 0 by averaging
+                for (int ik = 0; ik < Nk; ++ik) {
+                // compute ψ-average at l = 0
+                dcomplex avg = 0.0;
+                for (int ip = 0; ip < Npsi; ++ip) {
+                    avg += HF[sys.idx(0, ip, 0, ik)];
+                }
+                avg /= static_cast<double>(Npsi);
+
+                // enforce ψ-invariance
+                for (int ip = 0; ip < Npsi; ++ip) {
+                    HF[sys.idx(0, ip, 0, ik)] = avg;
+                }
         }
-        HF[sys.idx(0, ip, il, ik)] += prefac * sum_integral;
-    }
+    
 
-    // Enforce psi-independence at l = 0 by averaging
-    for (int ik = 0; ik < Nk; ++ik) {
-        dcomplex avg(0.0, 0.0);
-
+        // ============ sig = 1 ============
+        #pragma omp parallel for collapse(3)
         for (int ip = 0; ip < Npsi; ++ip) {
-            avg += HF[sys.idx(0, ip, 0, ik)];
-        }
+            for (int il = 0; il < Nl; ++il) {
+                for (int ik = 0; ik < Nk; ++ik) {
+                    double psi = psi_array[ip];
+                    double cos_psi = cos_psi_array[ip];
+                    double sin_psi = std::sqrt(std::max(0.0, 1.0 - cos_psi * cos_psi));
+                    double k = K_array[ik];
+                    double k2 = k * k;
+                    double l = L_array[il];
+                    double l2 = l * l;
+                    double kl = k * l;
 
-        avg /= double(Npsi);
-
-        for (int ip = 0; ip < Npsi; ++ip) {
-            HF[sys.idx(0, ip, 0, ik)] = avg;
-        }
-    }
-
-    // ============ sig = 1 ============
-    #pragma omp parallel for
-    for (int idx = 0; idx < Npsi * Nk * Nl; ++idx) {
-        int ip = idx / (Nl * Nk);
-        int il = (idx / Nk) % Nl;
-        int ik = idx % Nk;
-
-        double psi = psi_array[ip];
-        double cos_psi = cos_psi_array[ip];
-        double sin_psi = std::sqrt(std::max(0.0, 1.0 - cos_psi * cos_psi));
-        double k = K_array[ik];
-        double k2 = k * k;
-        double l = L_array[il];
-        double l2 = l * l;
-        double kl = k * l;
-
-        const dcomplex f_ = fH0[sys.idx(1, ip, il, ik)];
-        
-        // BOUNDARY CONDITION: At l=0, set kinetic term to 0 to ensure psi-independence
-  
-        HF[sys.idx(1, ip, il, ik)] = k * l * cos_psi / omega * f_;
-
-        dcomplex sum_integral(0.0, 0.0);
-
-        // Helper lambda for M10 and M11 contributions
-        auto process_integration_point = [&](double p, double w_p, double cos_th, double sin_th, double w_th) {
-            double p2 = p * p;
-            double pl = p * l;
-            double pk = p * k;
-            double Vp = V(p, mu);
-            double w_total = w_p * w_th;
-            double cos_theta_minus_psi = cos_th * cos_psi + sin_th * sin_psi;
-
-            // M10 contribution
-            double Rp_m_k = std::sqrt(k2 + p2 - 2*pk*cos_th);
-            double Rp_p_k = std::sqrt(k2 + p2 + 2*pk*cos_th);
-            double Rp_m_l = (il == 0) ? p : std::sqrt(l2 + p2 - 2*pl*cos_theta_minus_psi);
-            double R_l_m_2z_p = std::sqrt(l2 + (2*z-1)*(2*z-1)*p2 - 4.0*pl*(2*z-1)*cos_theta_minus_psi);
-            double R_l_m_2_1z_p =std::sqrt(l2 + (2*z-1)*(2*z-1)*p2 + 4.0*pl*(2*z-1)*cos_theta_minus_psi);
-
-            // Angle calculations
+                    const dcomplex f_ = fH0[sys.idx(1, ip, il, ik)];
+                    
+                    // BOUNDARY CONDITION: At l=0, set kinetic term to 0 to ensure psi-independence
             
-            //k-p, l-p (sigma_0)
-            double numer_pmk_lmp = (p2 - pk * cos_th - pl * cos_theta_minus_psi + kl * cos_psi);
-            double cos_val_pmk_lmp = std::clamp(numer_pmk_lmp / (Rp_m_k * Rp_m_l + 1e-12), -1.0, 1.0);
-            double angle_pmk_lmp = acos_spline(cos_val_pmk_lmp);
+                    HF[sys.idx(1, ip, il, ik)] = k * l * cos_psi / omega * f_;
 
-            //k+p, l-p (sigma_0)
-            double numer_ppk_lmp = -(p2 + pk * cos_th - pl * cos_theta_minus_psi) + kl * cos_psi;
-            double cos_val_ppk_lmp = std::clamp(numer_ppk_lmp / (Rp_p_k * Rp_m_l + 1e-12), -1.0, 1.0);
-            double angle_ppk_lmp = acos_spline(cos_val_ppk_lmp);
+                    dcomplex sum_integral(0.0, 0.0);
 
-            // p - k, l - (2z-1) p (sigma_zs)
-            // numerator = p (-1 + 2 z) (p - k Cos[\[Theta]]) - l p Cos[\[Theta] - \[Psi]] + k l Cos[\[Psi]]
-            double numer_pmk_l2zp = (p2 * two_z_minus_1 - pk * two_z_minus_1 * cos_th - pl * cos_theta_minus_psi + kl * cos_psi);
-            double cos_val_pmk_l2zp = std::clamp(numer_pmk_l2zp / (Rp_m_k * R_l_m_2z_p + 1e-12), -1.0, 1.0);
-            double angle_pmk_l2zp = acos_spline(cos_val_pmk_l2zp);
+                    // Helper lambda for M10 and M11 contributions
+                    auto process_integration_point = [&](double p, double w_p, double cos_th, double sin_th, double w_th) {
+                        double p2 = p * p;
+                        double pl = p * l;
+                        double pk = p * k;
+                        double Vp = p * V(2.0 * p, mu);
+                        double w_total = w_p * w_th;
+                        double cos_theta_minus_psi = cos_th * cos_psi + sin_th * sin_psi;
 
-            // p - k, l + (2z-1) p (sigma_zs)
-            //numerator = p^2 - 2 p^2 z + k p (-1 + 2 z) Cos[\[Theta]] - l p Cos[\[Theta] - \[Psi]] + k l Cos[\[Psi]]
+                        // M10 contribution
+                        double Rp_m_k = std::sqrt(k2 + p2 - 2*pk*cos_th);
+                        double Rp_p_k = std::sqrt(k2 + p2 + 2*pk*cos_th);
+                        double Rp_m_l = (il == 0) ? p : std::sqrt(l2 + p2 - 2*pl*cos_theta_minus_psi);
+                        double R_l_m_2z_p = std::sqrt(l2 + (2*z-1)*(2*z-1)*p2 - 4.0*pl*(2*z-1)*cos_theta_minus_psi);
+                        double R_l_m_2_1z_p =std::sqrt(l2 + (2*z-1)*(2*z-1)*p2 + 4.0*pl*(2*z-1)*cos_theta_minus_psi);
 
-            double numer_pmk_l2_1zp = (p2 - 2*p2*z + pk * two_z_minus_1 * cos_th - pl * cos_theta_minus_psi + kl * cos_psi);
-            double cos_val_pmk_l2_1zp = std::clamp(numer_pmk_l2_1zp / (Rp_m_k * R_l_m_2_1z_p + 1e-12), -1.0, 1.0);
-            double angle_pmk_l2_1zp = acos_spline(cos_val_pmk_l2_1zp);
+                        // Angle calculations
+                        
+                        //k-p, l-p (sigma_0)
+                        double numer_pmk_lmp = (p2 - pk * cos_th - pl * cos_theta_minus_psi + kl * cos_psi);
+                        double cos_val_pmk_lmp = std::clamp(numer_pmk_lmp / (Rp_m_k * Rp_m_l + 1e-12), -1.0, 1.0);
+                        double angle_pmk_lmp = acos_spline(cos_val_pmk_lmp);
 
-            // Sample values with domain checks
-            bool d1 = (Rp_m_k >= k_min && Rp_m_k <= k_max && Rp_m_l >= l_min && Rp_m_l <= l_max);
-            bool d2 = (Rp_p_k >= k_min && Rp_p_k <= k_max && Rp_m_l >= l_min && Rp_m_l <= l_max);
-            bool d3 = (Rp_m_k >= k_min && Rp_m_k <= k_max && R_l_m_2z_p >= l_min && R_l_m_2z_p <= l_max);
-            bool d4 = (Rp_m_k >= k_min && Rp_m_k <= k_max && R_l_m_2_1z_p >= l_min && R_l_m_2_1z_p <= l_max);
+                        //k+p, l-p (sigma_0)
+                        double numer_ppk_lmp = -(p2 + pk * cos_th - pl * cos_theta_minus_psi) + kl * cos_psi;
+                        double cos_val_ppk_lmp = std::clamp(numer_ppk_lmp / (Rp_p_k * Rp_m_l + 1e-12), -1.0, 1.0);
+                        double angle_ppk_lmp = acos_spline(cos_val_ppk_lmp);
 
-            dcomplex M10_contrib(0.0, 0.0);
-            if (d1) {
-                dcomplex f0_kmp_lmp = get_fval(0, angle_pmk_lmp, Rp_m_k, Rp_m_l);
-                //dcomplex f0_kpp_lmp = sample_trilinear(0, angle_ppk_lmp, Rp_p_k, Rp_m_l);
-                //dcomplex f0_pmk_l2zp = sample_trilinear(0, angle_pmk_l2zp, Rp_m_k, R_l_m_2z_p);
-                //dcomplex f0_pmk_l2_1zp = sample_trilinear(0, angle_pmk_l2_1zp, Rp_m_k, R_l_m_2_1z_p);
-                M10_contrib += CA * (f_ - f0_kmp_lmp); // minus sign ?????
-            }
+                        // p - k, l - (2z-1) p (sigma_zs)
+                        // numerator = p (-1 + 2 z) (p - k Cos[\[Theta]]) - l p Cos[\[Theta] - \[Psi]] + k l Cos[\[Psi]]
+                        double numer_pmk_l2zp = (p2 * two_z_minus_1 - pk * two_z_minus_1 * cos_th - pl * cos_theta_minus_psi + kl * cos_psi);
+                        double cos_val_pmk_l2zp = std::clamp(numer_pmk_l2zp / (Rp_m_k * R_l_m_2z_p + 1e-12), -1.0, 1.0);
+                        double angle_pmk_l2zp = acos_spline(cos_val_pmk_l2zp);
 
-            if (d2) {
-                dcomplex f0_kpp_lmp = get_fval(0, angle_ppk_lmp, Rp_p_k, Rp_m_l);
-                M10_contrib += CA * (f_ - f0_kpp_lmp);
-            }
+                        // p - k, l + (2z-1) p (sigma_zs)
+                        //numerator = p^2 - 2 p^2 z + k p (-1 + 2 z) Cos[\[Theta]] - l p Cos[\[Theta] - \[Psi]] + k l Cos[\[Psi]]
 
-            if (d3) {
-                dcomplex f0_pmk_l2zp = get_fval(0, angle_pmk_l2zp, Rp_m_k, R_l_m_2z_p);
-                M10_contrib += -CA * (f_ - f0_pmk_l2zp);
-            }
+                        double numer_pmk_l2_1zp = (p2 - 2*p2*z + pk * two_z_minus_1 * cos_th - pl * cos_theta_minus_psi + kl * cos_psi);
+                        double cos_val_pmk_l2_1zp = std::clamp(numer_pmk_l2_1zp / (Rp_m_k * R_l_m_2_1z_p + 1e-12), -1.0, 1.0);
+                        double angle_pmk_l2_1zp = acos_spline(cos_val_pmk_l2_1zp);
 
-            if (d4) {
-                dcomplex f0_pmk_l2_1zp = get_fval(0, angle_pmk_l2_1zp, Rp_m_k, R_l_m_2_1z_p);
-                M10_contrib += -CA * (f_ - f0_pmk_l2_1zp);
-            }
+                        // Sample values with domain checks
+                        bool d1 = (Rp_m_k >= k_min && Rp_m_k <= k_max && Rp_m_l >= l_min && Rp_m_l <= l_max);
+                        bool d2 = (Rp_p_k >= k_min && Rp_p_k <= k_max && Rp_m_l >= l_min && Rp_m_l <= l_max);
+                        bool d3 = (Rp_m_k >= k_min && Rp_m_k <= k_max && R_l_m_2z_p >= l_min && R_l_m_2z_p <= l_max);
+                        bool d4 = (Rp_m_k >= k_min && Rp_m_k <= k_max && R_l_m_2_1z_p >= l_min && R_l_m_2_1z_p <= l_max);
 
-            // M11 contribution
-            double R_k_zp = std::sqrt(k2 + 4*z2*p2 - 4*pk*z*cos_th);
-            double R_k_1zp = std::sqrt(k2 + 4*one_z_2*p2 - 4*pk*one_z*cos_th);
+                        dcomplex M10_contrib(0.0, 0.0);
+                        if (d1) {
+                            dcomplex f0_kmp_lmp = get_fval(0, angle_pmk_lmp, Rp_m_k, Rp_m_l);
+                            //dcomplex f0_kpp_lmp = sample_trilinear(0, angle_ppk_lmp, Rp_p_k, Rp_m_l);
+                            //dcomplex f0_pmk_l2zp = sample_trilinear(0, angle_pmk_l2zp, Rp_m_k, R_l_m_2z_p);
+                            //dcomplex f0_pmk_l2_1zp = sample_trilinear(0, angle_pmk_l2_1zp, Rp_m_k, R_l_m_2_1z_p);
+                            M10_contrib += CA * (f_ - f0_kmp_lmp); // minus sign ?????
+                        }
 
-            double numer_k_zp_l = (k * cos_psi - 2*z*p*cos_theta_minus_psi);
-            double cos_val_k_zp_l = std::clamp(numer_k_zp_l / (R_k_zp), -1.0, 1.0);
+                        if (d2) {
+                            dcomplex f0_kpp_lmp = get_fval(0, angle_ppk_lmp, Rp_p_k, Rp_m_l);
+                            M10_contrib += CA * (f_ - f0_kpp_lmp);
+                        }
 
-            double angle_k_zp_l = (il > 0) ? acos_spline(cos_val_k_zp_l) : 0.0;
+                        if (d3) {
+                            dcomplex f0_pmk_l2zp = get_fval(0, angle_pmk_l2zp, Rp_m_k, R_l_m_2z_p);
+                            M10_contrib += -CA * (f_ - f0_pmk_l2zp);
+                        }
 
-            double numer_k_1zp_l = (k * cos_psi - 2*one_z*p*cos_theta_minus_psi);
-            double cos_val_k_1zp_l = std::clamp(numer_k_1zp_l / (R_k_1zp), -1.0, 1.0);
+                        if (d4) {
+                            dcomplex f0_pmk_l2_1zp = get_fval(0, angle_pmk_l2_1zp, Rp_m_k, R_l_m_2_1z_p);
+                            M10_contrib += -CA * (f_ - f0_pmk_l2_1zp);
+                        }
 
-            double angle_k_1zp_l = (il > 0) ? acos_spline(cos_val_k_1zp_l) : 0.0;
+                        // M11 contribution
+                        double R_k_zp = std::sqrt(k2 + 4*z2*p2 - 4*pk*z*cos_th);
+                        double R_k_1zp = std::sqrt(k2 + 4*one_z_2*p2 - 4*pk*one_z*cos_th);
 
-            bool d5 = (R_k_zp >= k_min && R_k_zp <= k_max);
-            bool d6 = (R_k_1zp >= k_min && R_k_1zp <= k_max);
+                        double numer_k_zp_l = (k * cos_psi - 2*z*p*cos_theta_minus_psi);
+                        double cos_val_k_zp_l = std::clamp(numer_k_zp_l / (R_k_zp), -1.0, 1.0);
 
-            dcomplex M11_contrib(0.0, 0.0);
-            if (d5) {
-                dcomplex f1_k_zp_l = get_fval(1, angle_k_zp_l, R_k_zp, l);
-                //dcomplex f1_k_1zp_l = sample_trilinear(1, angle_k_1zp_l, R_k_1zp, l);
-                M11_contrib += 2.0 * CF * (f_ - f1_k_zp_l );
-            }
+                        double angle_k_zp_l = (il > 0) ? acos_spline(cos_val_k_zp_l) : 0.0;
 
-            if (d6) {
-                dcomplex f1_k_1zp_l = get_fval(1, angle_k_1zp_l, R_k_1zp, l);
-                M11_contrib += 2.0 * CF * (f_ - f1_k_1zp_l);
-            }
+                        double numer_k_1zp_l = (k * cos_psi - 2*one_z*p*cos_theta_minus_psi);
+                        double cos_val_k_1zp_l = std::clamp(numer_k_1zp_l / (R_k_1zp), -1.0, 1.0);
 
-            return Vp * (M10_contrib + M11_contrib) * w_total;
-        };
+                        double angle_k_1zp_l = (il > 0) ? acos_spline(cos_val_k_1zp_l) : 0.0;
+
+                        bool d5 = (R_k_zp >= k_min && R_k_zp <= k_max);
+                        bool d6 = (R_k_1zp >= k_min && R_k_1zp <= k_max);
+
+                        dcomplex M11_contrib(0.0, 0.0);
+                        if (d5 && d6) {
+                            dcomplex f1_k_zp_l = get_fval(1, angle_k_zp_l, R_k_zp, l);
+                            dcomplex f1_k_1zp_l = get_fval(1, angle_k_1zp_l, R_k_1zp, l);
+                            M11_contrib += 2.0 * CF * (2.0 * f_ - f1_k_zp_l -  f1_k_1zp_l);
+                        }
+
+                        /*if (d6) {
+                            dcomplex f1_k_1zp_l = get_fval(1, angle_k_1zp_l, R_k_1zp, l);
+                            M11_contrib += 2.0 * CF * (f_ - f1_k_1zp_l);
+                        }*/
+
+                        return Vp * (M11_contrib) * w_total;
+                    };
 
         // Integrate over region 1: [a1,b1]
         if (half1 > 0.0) {
@@ -559,19 +553,22 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
         }
 
         HF[sys.idx(1, ip, il, ik)] += prefac * sum_integral;
-    }
+    }}}
 
     // Enforce psi-independence at l = 0 by averaging
     for (int ik = 0; ik < Nk; ++ik) {
-        dcomplex avg(0.0, 0.0);
+        // compute ψ-average at l = 0
+        dcomplex avg = 0.0;
         for (int ip = 0; ip < Npsi; ++ip) {
             avg += HF[sys.idx(1, ip, 0, ik)];
         }
-        avg /= double(Npsi);
+        avg /= static_cast<double>(Npsi);
+
+        // enforce ψ-invariance
         for (int ip = 0; ip < Npsi; ++ip) {
             HF[sys.idx(1, ip, 0, ik)] = avg;
         }
-    }
+        }
 
     return HF;
 }

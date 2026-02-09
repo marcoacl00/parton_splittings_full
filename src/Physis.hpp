@@ -124,8 +124,7 @@ public:
     void set_pmax(double p){
         pmax_ = p;
     }
-
-    std::vector<dcomplex> source_term(const std::vector<double>& p, const std::vector<dcomplex>& j_p);
+    std::vector<dcomplex> source_term(const std::vector<double>& p, const std::vector<dcomplex>& j_p, double t);
 
 };
 

@@ -39,7 +39,7 @@ void Physis::set_dim(int Nk, int Nl, int Npsi) {
 
     // we are using ik for the index in the k axis
     for (int ik = 0; ik < Nk_; ++ik) {
-        K_[ik] = (Lk_ * (ik) / double(Nk_ - 1));
+        K_[ik] = (Lk_ * (ik + 1) / double(Nk_ - 1));
     }
 
     // il for the l axis
@@ -50,8 +50,13 @@ void Physis::set_dim(int Nk, int Nl, int Npsi) {
     // ... and ip for the psi axis ∈ [0, pi]
     for (int ip = 0; ip < Npsi_; ++ip) {
         Psi_[ip] = (M_PI * ip) / double(Npsi_ - 1);
-        Cos_Psi_[ip] = std::cos(Psi_[ip]); // initialize the cos array to save computational time. [1, -1]
+        Cos_Psi_[ip] = std::cos(Psi_[ip]); // initialize the cos array to save computational time
     }
+
+    std::cout << "Initialized grid with Nk=" << Nk_ << ", Nl=" << Nl_ << ", Npsi=" << Npsi_ << "\n";
+    std::cout << "K range: [" << K_.front() << ", " << K_.back() << "]\n";
+    std::cout << "L range: [" << L_.front() << ", " << L_.back() << "]\n";
+    std::cout << "Psi range: [" << Psi_.front() << ", " << Psi_.back() << "]\n";
 
 
 }
@@ -96,7 +101,7 @@ void Physis::set_fsol(const std::vector<dcomplex>& arr) {
     Fsol_ = arr;
 }
 
-std::vector<dcomplex> Physis::source_term(const std::vector<double>& p, const std::vector<dcomplex>& j_p){
+std::vector<dcomplex> Physis::source_term(const std::vector<double>& p, const std::vector<dcomplex>& j_p, const double time){
 
     // split j_p into real and imaginary parts
     std::vector<double> j_real(j_p.size()), j_imag(j_p.size());
@@ -113,7 +118,12 @@ std::vector<dcomplex> Physis::source_term(const std::vector<double>& p, const st
     double psi;
     double cos_psi;
     double R;
-    double pref;
+    dcomplex pref;
+
+    double omega = omega_;
+    double qtilde = qtilde_;
+
+    dcomplex Omega = (1.0 - Iunit) * 0.5 * std::sqrt(1.5 * qtilde / omega);
     
     std::vector<dcomplex> s_term;
     s_term.resize(Npsi_*Nk_*Nl_);
@@ -129,8 +139,10 @@ std::vector<dcomplex> Physis::source_term(const std::vector<double>& p, const st
                 double k2 = k * k;
 
 
-                R = std::sqrt(k2 + l2 + 2.0*k*l*cos_psi + 1e-7);
-                pref = (k2 - l2) / R;
+                /*R = std::sqrt(k2 + l2 + 2.0*k*l*cos_psi) + 1e-8; 
+
+                pref = (k2 - l2) / R; 
+
                 double jr = j_r(R);
                 double ji = j_i(R);
                 // if (il == 0) {
@@ -139,8 +151,21 @@ std::vector<dcomplex> Physis::source_term(const std::vector<double>& p, const st
                 //     std::cout << "k=" << k << ", l=" << l << ", cos_psi=" << cos_psi << "\n";
                 // }
                 //note that idx(0, ip, ik, ip) = idx3(ip, ik, il).
-                s_term[idx(0, ip, il, ik)] =  pref * dcomplex(-ji, jr); // source multiplies by -i
+                s_term[idx(0, ip, il, ik)] =  pref * dcomplex(-ji, jr); // source multiplies by -i*/
+                double R2 = k2 + l2 + 2.0 * k * l * cos_psi; // add small number to avoid singularity at R=0
+                double r_ratio = (k2 - l2)/R2;
 
+                pref = -Iunit * 2.0 * omega;
+                int idxc = ip * (Nl_ * Nk_) + il * Nk_ + ik; // idx for s_term
+
+                s_term[idxc] = r_ratio * pref * (1.0 - std::exp(-Iunit / (2 * omega * Omega) * std::tan(Omega * time) * R2)) ;
+
+
+                /*if(il == 0){std::cout << "Source term" << s_term[idx(0, ip, il, ik)] << " at (ip, ik, il)=(" << ip << ", " << ik << ", " << il << "): "
+                    << "R2=" << R2 << ", pref=" << pref 
+                    << "\n";
+                }*/
+                
             }
         }
     }

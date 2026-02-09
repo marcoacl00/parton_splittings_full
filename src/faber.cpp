@@ -76,9 +76,9 @@ void faber_params3D_full(const Physis& sys, double &lambda_F, dcomplex &gamma_0,
     
 
     double lam_re_max = Lk*Ll / omega;
-    double lam_re_min = 0.0;
-    double lam_im_max = qtilde/(delta_k*delta_k + delta_l*delta_l) ;
-    double lam_im_min = -qtilde/(delta_k*delta_k + delta_l*delta_l) ;
+    double lam_re_min = -Lk*Ll / omega;
+    double lam_im_max = 0.0;
+    double lam_im_min = - 4.0 * qtilde * 1.0 / 8.0 /(delta_k*delta_k) - qtilde/(delta_l*delta_l);
 
     double c = (lam_re_max - lam_re_min)/2.0;
     double l = (lam_im_max - lam_im_min)/2.0;
@@ -177,9 +177,9 @@ vector<dcomplex> faber_expand_full(const Physis& sis_f, double ht,
     // Initialize fH_0, fH_1, fH_2
     vector<dcomplex> fH_0 = sis_f.Fsol();
     const size_t n = fH_0.size();
-    
+
     vector<dcomplex> fH_1 = apply_hamiltonian(sis_f, fH_0);
-    
+
     //#pragma omp parallel for schedule(static) if(n > 1000)
     for (size_t k = 0; k < n; ++k) {
         fH_1[k] = fH_1[k] * one_lamb_1 - gamma0_f * fH_0[k];
