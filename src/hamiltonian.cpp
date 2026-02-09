@@ -20,9 +20,9 @@ double VHTL_eff(double q, double mu)
 
 double VHO_eff(double q, double mu)
 {   double eps = mu;
-    double exp = std::exp(-q*q / (2 * eps*eps));
+    double exp = std::exp(-4.0 * q*q / (2 * eps*eps));
 
-    double fac = PI/4 *  1.0 / (2.0 * PI * pow(eps, 4)) * (q*q  / (eps*eps)  - 2.0);
+    double fac = PI / 4.0 * q * 1.0 / (2.0 * PI * pow(eps, 4)) * (4.0 * q*q  / (eps*eps)  - 2.0);
 
 
     return exp * fac;
@@ -81,7 +81,7 @@ private:
 
 
 // Global precomputed Gauss-Legendre quadrature points (initialize once)
-static const GaussLegendre GL_RADIAL(6);  
+static const GaussLegendre GL_RADIAL(3);  
 static const GaussLegendre GL_ANGULAR(6); 
 
 
@@ -141,7 +141,7 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
     
     // map Gauss-Legendre nodes from [-1,1] to integration domains
     // For radial: [pmin, pmax]
-    double split = 0.75 * mu;
+    double split = 0.4 * mu;
 
     vector<double> p1_nodes, p1_weights; // region [pmin, split]
     vector<double> p2_nodes, p2_weights; // region [split, pmax]
@@ -265,10 +265,9 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
         
         // Second-order Taylor expansion
         dcomplex fval = f000 
-            + 0.5 * f_psipsi * t_psi * t_psi
-            + f_k   * t_k   + 0.5 * f_kk     * t_k   * t_k
-            + f_l   * t_l   + 0.5 * f_ll     * t_l   * t_l;
-            /*+ f_psik * t_psi * t_k 
+            + f_k*t_k   + 0.5*f_kk * t_k*t_k
+            + f_l*t_l   + 0.5*f_ll * t_l*t_l;
+            /*+ f_psik * t_psi * t_k + 0.5 * f_psipsi * t_psi * t_psi
             + f_psil * t_psi * t_l 
             + f_kl   * t_k   * t_l;  f_psi * t_psi*/
         
@@ -311,7 +310,7 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
                     double p2 = p * p;
                     double kp = k * p;
                     double lp = l * p;
-                    double Vp = p * V(2.0 * p, mu);
+                    double Vp = 0.0 * V(p, mu);
                     double w_total = w_p * w_th;
                     double cos_theta_minus_psi = cos_th * cos_psi + sin_th * sin_psi;
 
@@ -348,7 +347,7 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
                 };
 
                 // Integrate over region 1: [a1,b1]
-                /*if (half1 > 0.0) {
+                if (half1 > 0.0) {
                     for (int i = 0; i < n_radial; ++i) {
                         for (int j = 0; j < n_angular; ++j) {
                             sum_integral += process_integration_point_sig0(
@@ -369,22 +368,26 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
                             );
                         }
                     }
-                }*/
-                dcomplex laplacian_l;
-                if (il == 0){
-                    laplacian_l = 2.0 * fll[current_idx]; // at l=0, the function is psi-independent, so the laplacian reduces to the second derivative in l
-                }
-                else{
-                    laplacian_l = fll[current_idx]+ (1.0/l) * fl[current_idx] + (1.0)/(l*l) * fpp[current_idx];
                 }
 
+                HF[sys.idx(0, ip, il, ik)] += prefac * sum_integral;
+                // dcomplex laplacian_l;
+                // if (il == 0){
+                //     laplacian_l = 2.0 * fll[current_idx]; // at l=0, the function is psi-independent, so the laplacian reduces to the second derivative in l
+                // }
+                // else{
+                //     laplacian_l = fll[current_idx]+ (1.0/l) * fl[current_idx] + (1.0)/(l*l) * fpp[current_idx];
+                // }
 
 
 
-                //compute derivatives on the fly here
-                dcomplex laplacian_k = fkk[current_idx] + (1.0/k) * fk[current_idx] ;
 
-                HF[sys.idx(0, ip, il, ik)] += I * qtilde / 4.0 * 0.5 * CF * (laplacian_k + laplacian_l);
+                // //compute derivatives on the fly here
+                // dcomplex laplacian_k = fkk[current_idx] + (1.0/k) * fk[current_idx] ;
+
+                // HF[sys.idx(0, ip, il, ik)] += I * qtilde / 4.0 * 0.5 * CF * (laplacian_k + laplacian_l);
+
+
             }}}
 
             // Enforce psi-independence at l = 0 by averaging
@@ -430,7 +433,7 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
                         double p2 = p * p;
                         double pl = p * l;
                         double pk = p * k;
-                        double Vp = p * V(2.0 * p, mu);
+                        double Vp = V(p, mu);
                         double w_total = w_p * w_th;
                         double cos_theta_minus_psi = cos_th * cos_psi + sin_th * sin_psi;
 
@@ -438,8 +441,8 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
                         double Rp_m_k = std::sqrt(k2 + p2 - 2*pk*cos_th);
                         double Rp_p_k = std::sqrt(k2 + p2 + 2*pk*cos_th);
                         double Rp_m_l = (il == 0) ? p : std::sqrt(l2 + p2 - 2*pl*cos_theta_minus_psi);
-                        double R_l_m_2z_p = std::sqrt(l2 + (2*z-1)*(2*z-1)*p2 - 4.0*pl*(2*z-1)*cos_theta_minus_psi);
-                        double R_l_m_2_1z_p =std::sqrt(l2 + (2*z-1)*(2*z-1)*p2 + 4.0*pl*(2*z-1)*cos_theta_minus_psi);
+                        double R_l_m_2z_p = std::sqrt(l2 + (2*z-1)*(2*z-1)*p2 - 2.0 * pl*(2*z-1)*cos_theta_minus_psi);
+                        double R_l_m_2_1z_p =std::sqrt(l2 + (2*z-1)*(2*z-1)*p2 + 2.0 * pl*(2*z-1)*cos_theta_minus_psi);
 
                         // Angle calculations
                         

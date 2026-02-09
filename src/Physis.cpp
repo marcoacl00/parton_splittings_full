@@ -139,7 +139,7 @@ std::vector<dcomplex> Physis::source_term(const std::vector<double>& p, const st
                 double k2 = k * k;
 
 
-                /*R = std::sqrt(k2 + l2 + 2.0*k*l*cos_psi) + 1e-8; 
+                R = std::sqrt(k2 + l2 + 2.0*k*l*cos_psi) + 1e-8; 
 
                 pref = (k2 - l2) / R; 
 
@@ -151,14 +151,15 @@ std::vector<dcomplex> Physis::source_term(const std::vector<double>& p, const st
                 //     std::cout << "k=" << k << ", l=" << l << ", cos_psi=" << cos_psi << "\n";
                 // }
                 //note that idx(0, ip, ik, ip) = idx3(ip, ik, il).
+                
                 s_term[idx(0, ip, il, ik)] =  pref * dcomplex(-ji, jr); // source multiplies by -i*/
-                double R2 = k2 + l2 + 2.0 * k * l * cos_psi; // add small number to avoid singularity at R=0
-                double r_ratio = (k2 - l2)/R2;
+                // double R2 = k2 + l2 + 2.0 * k * l * cos_psi; // add small number to avoid singularity at R=0
+                // double r_ratio = (k2 - l2)/R2;
 
-                pref = -Iunit * 2.0 * omega;
-                int idxc = ip * (Nl_ * Nk_) + il * Nk_ + ik; // idx for s_term
+                // pref = -Iunit * 2.0 * omega;
+                // int idxc = ip * (Nl_ * Nk_) + il * Nk_ + ik; // idx for s_term
 
-                s_term[idxc] = r_ratio * pref * (1.0 - std::exp(-Iunit / (2 * omega * Omega) * std::tan(Omega * time) * R2)) ;
+                // s_term[idxc] = r_ratio * pref * (1.0 - std::exp(-Iunit / (2 * omega * Omega) * std::tan(Omega * time) * R2)) ;
 
 
                 /*if(il == 0){std::cout << "Source term" << s_term[idx(0, ip, il, ik)] << " at (ip, ik, il)=(" << ip << ", " << ik << ", " << il << "): "

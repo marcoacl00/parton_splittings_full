@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     double Lp =  4.0* E * z * (1 - z);
     double Lk =  0.325 * Lp;
     double Ll = 0.3 *  Lk;
-    double mu = 0.6;
+    double mu = 0.5;
     string vertex = "gamma_qq";
     string Nc_mode = "LNc";
 
@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
     Physis sis_f(E, z, qtilde, Lk, Ll, mu, mode, vertex, Nc_mode);
     // set dimensions
     sis.set_dim(512);
-    sis_f.set_dim(180, 60, 4);
+    sis_f.set_dim(300, 60, 4);
 
 
     // initialize the solution
@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
     sis.set_pmax(p_max_coeff * sis.mu());
 
     sis_f.set_pmin(0);
-    sis_f.set_pmax(0.1 * p_max_coeff * sis.mu());
+    sis_f.set_pmax(0.6 * p_max_coeff * sis.mu());
 
     // define vector with times
     vector<double> time_list;
@@ -390,7 +390,7 @@ int main(int argc, char* argv[]) {
     ofstream ofs_f(file_name_3D);
 
     for (int ik = 0; ik < sis_f.Nk(); ++ik) {
-        ofs_f << " " << sis_f.Fsol()[sis_f.idx(1, 0, 0, ik)].real() << "\n";
+        ofs_f << " " << sis_f.Fsol()[sis_f.idx(0, 0, 0, ik)].real() << "\n";
     }
     ofs_f.close();
 
