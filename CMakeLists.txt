@@ -6,10 +6,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(OpenMP REQUIRED) 
 # Collect only .cpp files for compilation 
 
-file(GLOB_RECURSE PHYSIS_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/*.c ) 
+file(GLOB_RECURSE PHYSIS_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp 
+                                ${CMAKE_CURRENT_SOURCE_DIR}/src/*.c ) 
+
 add_library(physis ${PHYSIS_SOURCES}) 
+
 # Include directories for headers 
-target_include_directories(physis PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src/bessel-library ) 
+target_include_directories(physis PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src 
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/src/bessel-library ) 
 
 target_link_libraries(physis PUBLIC OpenMP::OpenMP_CXX ) 
 #other flags : -Wall -Wextra

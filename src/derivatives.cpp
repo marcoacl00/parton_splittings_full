@@ -61,11 +61,12 @@ void precompute_derivatives_3d(
             // note that for the boundary corrections, the function has by construction more than 3 points in each direction,
             // (and more than 5 for l) so we can always apply the 3-point formulas without worrying about out-of-bounds access.
 
+
+            // ==============================
+            // ===== PURE k-DERIVATIVES =====
+            // ==============================
             
-            // ------ PURE k-DERIVATIVES ------
-            // --------------------------------
-            
-            // ----- ∂f/∂k -----
+            // ===== ∂f/∂k =====
             if (ik == 0) {
 
                 // left boundary; use forward difference formulas 
@@ -196,13 +197,13 @@ void precompute_derivatives_3d(
             
             // ----- ∂²f/∂psi² -----
             if (ip == 0) {
-                // Forward difference (2nd order): f''(0) ≈ (2f0 - 5f1 + 4f2 - f3)/Δpsi²
+                // 
                 fpp[flat_idx] = (2.0 * fH0[sys.idx(s, ip + 1, il, ik)] 
                             - 2.0 * fH0[sys.idx(s, ip, il, ik)] 
                             ) * inv_delta_psi * inv_delta_psi;
 
             } else if (ip == Npsi - 1) {
-                // Backward difference (2nd order): f''(N) ≈ (2fN - 5f(N-1) + 4f(N-2) - f(N-3))/Δpsi²
+                // 
                 fpp[flat_idx] = (- 2.0 * fH0[sys.idx(s, ip, il, ik)] 
                             + 2.0 * fH0[sys.idx(s, ip - 1, il, ik)]) * inv_delta_psi * inv_delta_psi;
 
