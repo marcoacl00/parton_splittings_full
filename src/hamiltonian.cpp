@@ -511,8 +511,10 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
                         double Rp_m_k = std::sqrt(k2 + p2 - 2*pk*cos_th);
                         double Rp_p_k = std::sqrt(k2 + p2 + 2*pk*cos_th);
                         double Rp_m_l = (il == 0) ? p : std::sqrt(l2 + p2 - 2*pl*cos_theta_minus_psi);
-                        double R_l_m_2z_p = std::sqrt(l2 + (2*z-1)*(2*z-1)*p2 - 2.0 * pl*(2*z-1)*cos_theta_minus_psi);
-                        double R_l_m_2_1z_p =std::sqrt(l2 + (2*z-1)*(2*z-1)*p2 + 2.0 * pl*(2*z-1)*cos_theta_minus_psi);
+                        //double R_l_m_2z_p = std::sqrt(l2 + (2*z-1)*(2*z-1)*p2 - 2.0 * pl*(2*z-1)*cos_theta_minus_psi);
+                        //double R_l_m_2_1z_p =std::sqrt(l2 + (2*z-1)*(2*z-1)*p2 + 2.0 * pl*(2*z-1)*cos_theta_minus_psi);
+                        double R_k_m_2z_p = std::sqrt(k2 + (2*z-1)*(2*z-1)*p2 - 2.0 * pk*(2*z-1)*cos_th);
+                        double R_k_m_2_1z_p = std::sqrt(k2 + (2*z-1)*(2*z-1)*p2 + 2.0 * pk*(2*z-1)*cos_th);
 
                         // Angle calculations
                         
@@ -526,24 +528,24 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
                         double cos_val_ppk_lmp = std::clamp(numer_ppk_lmp / (Rp_p_k * Rp_m_l + 1e-12), -1.0, 1.0);
                         double angle_ppk_lmp = acos_spline(cos_val_ppk_lmp);
 
-                        // p - k, l - (2z-1) p (sigma_zs)
-                        // numerator = p (-1 + 2 z) (p - k Cos[\[Theta]]) - l p Cos[\[Theta] - \[Psi]] + k l Cos[\[Psi]]
-                        double numer_pmk_l2zp = (p2 * two_z_minus_1 - pk * two_z_minus_1 * cos_th - pl * cos_theta_minus_psi + kl * cos_psi);
-                        double cos_val_pmk_l2zp = std::clamp(numer_pmk_l2zp / (Rp_m_k * R_l_m_2z_p + 1e-12), -1.0, 1.0);
-                        double angle_pmk_l2zp = acos_spline(cos_val_pmk_l2zp);
+                        // k - (2z-1)p, l - p (sigma_zs)
+                        // numerator = -k p Cos[\[Theta]] + p (-1 + 2 z) (p - l Cos[\[Theta] - \[Psi]]) + k l Cos[\[Psi]]
+                        double numer_k_m_2z_p_lmp = (-pk * cos_th + p * two_z_minus_1 * (p - pl * cos_theta_minus_psi) + kl * cos_psi);
+                        double cos_val_k_m_2z_p_lmp = std::clamp(numer_k_m_2z_p_lmp / (R_k_m_2z_p * Rp_m_l + 1e-12), -1.0, 1.0);
+                        double angle_k_m_2z_p_lmp = acos_spline(cos_val_k_m_2z_p_lmp);
 
-                        // p - k, l + (2z-1) p (sigma_zs)
-                        //numerator = p^2 - 2 p^2 z + k p (-1 + 2 z) Cos[\[Theta]] - l p Cos[\[Theta] - \[Psi]] + k l Cos[\[Psi]]
+                        // k + (2z - 1)p, l - p (sigma_zs)
+                        //numerator = -k p Cos[\[Theta]] - p (-1 + 2 z) (p - l Cos[\[Theta] - \[Psi]]) + k l Cos[\[Psi]]
 
-                        double numer_pmk_l2_1zp = (p2 - 2*p2*z + pk * two_z_minus_1 * cos_th - pl * cos_theta_minus_psi + kl * cos_psi);
-                        double cos_val_pmk_l2_1zp = std::clamp(numer_pmk_l2_1zp / (Rp_m_k * R_l_m_2_1z_p + 1e-12), -1.0, 1.0);
-                        double angle_pmk_l2_1zp = acos_spline(cos_val_pmk_l2_1zp);
+                        double numer_k_m_2_1z_p_lmp = (-pk * cos_th - p * two_z_minus_1 * (p - pl * cos_theta_minus_psi) + kl * cos_psi);
+                        double cos_val_k_m_2_1z_p_lmp = std::clamp(numer_k_m_2_1z_p_lmp / (R_k_m_2_1z_p * Rp_m_l + 1e-12), -1.0, 1.0);
+                        double angle_k_m_2_1z_p_lmp = acos_spline(cos_val_k_m_2_1z_p_lmp);
 
                         // Sample values with domain checks
                         bool d1 = (Rp_m_k >= k_min && Rp_m_k <= k_max && Rp_m_l >= l_min && Rp_m_l <= l_max);
                         bool d2 = (Rp_p_k >= k_min && Rp_p_k <= k_max && Rp_m_l >= l_min && Rp_m_l <= l_max);
-                        bool d3 = (Rp_m_k >= k_min && Rp_m_k <= k_max && R_l_m_2z_p >= l_min && R_l_m_2z_p <= l_max);
-                        bool d4 = (Rp_m_k >= k_min && Rp_m_k <= k_max && R_l_m_2_1z_p >= l_min && R_l_m_2_1z_p <= l_max);
+                        bool d3 = (R_k_m_2z_p >= k_min && R_k_m_2z_p <= k_max && Rp_m_l >= l_min && Rp_m_l <= l_max);
+                        bool d4 = (R_k_m_2_1z_p >= k_min && R_k_m_2_1z_p <= k_max && Rp_m_l >= l_min && Rp_m_l <= l_max);
 
                         dcomplex M10_contrib(0.0, 0.0);
                         if (d1) {
@@ -560,15 +562,17 @@ vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, const vector<dcomplex>& fH
                         }
 
                         if (d3) {
-                            dcomplex f0_pmk_l2zp = get_fval(0, angle_pmk_l2zp, Rp_m_k, R_l_m_2z_p, ip, ik, il);
+                            dcomplex f0_pmk_l2zp = get_fval(0, angle_k_m_2z_p_lmp, R_k_m_2z_p, Rp_m_l, ip, ik, il);
                             M10_contrib += -CA * (f_ - f0_pmk_l2zp);
                         }
 
                         if (d4) {
-                            dcomplex f0_pmk_l2_1zp = get_fval(0, angle_pmk_l2_1zp, Rp_m_k, R_l_m_2_1z_p, ip, ik, il);
+                            dcomplex f0_pmk_l2_1zp = get_fval(0, angle_k_m_2_1z_p_lmp, R_k_m_2_1z_p, Rp_m_l, ip, ik, il);
                             M10_contrib += -CA * (f_ - f0_pmk_l2_1zp);
                         }
 
+
+                        
                         // M11 contribution
                         double R_k_zp = std::sqrt(k2 + 4*z2*p2 - 4*pk*z*cos_th);
                         double R_k_1zp = std::sqrt(k2 + 4*one_z_2*p2 - 4*pk*one_z*cos_th);
