@@ -39,7 +39,7 @@ void Physis::set_dim(int Nk, int Nl, int Npsi) {
 
     // we are using ik for the index in the k axis
     for (int ik = 0; ik < Nk_; ++ik) {
-        K_[ik] = (Lk_ * (ik + 1) / double(Nk_ - 1));
+        K_[ik] = (Lk_ * (ik) / double(Nk_ - 1));
     }
 
     // il for the l axis
