@@ -29,6 +29,7 @@ private:
     int Np_ = 0;
     const int refineFactor_ = 1;
     const std::string vertex_;
+    const std::string Nc_mode_;
 
     std::vector<double> P_;
     std::vector<dcomplex> Fsol_;
@@ -42,7 +43,8 @@ public:
              double Lp,
              double mu,
              int mode,
-             std::string vertex);
+             std::string vertex,
+            std::string Nc_mode);
 
     double E() const noexcept { return E_; }
     double z() const noexcept { return z_; }
@@ -56,6 +58,7 @@ public:
     int Np() const noexcept { return Np_; }
     double pmin() const noexcept { return pmin_; }
     double pmax() const noexcept { return pmax_; }
+    std::string Ncmode() const noexcept { return Nc_mode_; }
 
 
     void set_dim(int Np_);

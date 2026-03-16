@@ -22,7 +22,7 @@ using namespace std;
     string vertex);*/
 
 
-vector<dcomplex> Hamiltonian_qqbar(const Physis& sys, 
+vector<dcomplex> Hamiltonian(const Physis& sys, 
     const vector<dcomplex>& fH0);
 
 vector<dcomplex> Hamiltonian_qqbar_GPU(const Physis& sys, 
@@ -33,7 +33,7 @@ vector<dcomplex> apply_hamiltonian(const Physis& sys, const vector<dcomplex>& fH
 inline std::vector<dcomplex> apply_hamiltonian(const Physis& sys, const std::vector<dcomplex>& fH0) {
 
     //return Hamiltonian_qqbar_GPU(sys, fH0);
-    return Hamiltonian_qqbar(sys, fH0);
+    return Hamiltonian(sys, fH0);
 }
 
 

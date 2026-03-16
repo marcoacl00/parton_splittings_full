@@ -8,7 +8,8 @@ Physis_J::Physis_J(double E,
                    double Lp,
                    double mu,
                    int mode,
-                std::string vertex)
+                std::string vertex,
+                std::string Nc_mode)
     : E_(E * fm),
       qtilde_(qtilde * fm * fm),
       z_(z),
@@ -16,7 +17,9 @@ Physis_J::Physis_J(double E,
       Lp_(Lp * fm),
       mu_(mu * fm),
       mode_(mode),
-      vertex_(vertex){}
+      vertex_(vertex),
+      Nc_mode_(Nc_mode)
+      {}
 
 void Physis_J::set_dim(int Np) {
     if (Np < 2) {

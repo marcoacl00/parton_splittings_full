@@ -295,10 +295,12 @@ vector<dcomplex> Hamiltonian_J(const Physis_J& sys,
     const int mode = sys.mode();
     const string& vertex = sys.vertex();
     const auto& Pgrid = sys.P();
+    const string& Nc_mode = sys.Ncmode();
+    const bool is_large_Nc = (Nc_mode == "LNc");
     
     vector<dcomplex> HF(fH0.size(), dcomplex(0.0, 0.0));
 
-    const double CF = 1.5; //4.0 / 3.0;
+    const double CF = (is_large_Nc) ? 1.5 : 4.0/3.0;
     const double CA = 3.0;
 
     // Precompute derivatives 
