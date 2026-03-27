@@ -120,10 +120,13 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
     vector<double> L_array = sys.L();
     vector<double> psi_array = sys.Psi();
     vector<double> cos_psi_array = sys.Cos_Psi();
-    bool is_large_Nc = (sys.Ncmode() == "LNc");
-    bool is_gamma_qqbar = (sys.vertex() == "gamma_qq");
-    bool is_qqg = (sys.vertex() == "q_qg");
-    bool is_ggg = (sys.vertex() == "g_gg");
+    const bool is_large_Nc = (sys.Ncmode() == "LNc");
+    const bool is_gamma_qqbar = (sys.vertex() == "gamma_qq");
+    const bool is_qqg = (sys.vertex() == "q_qg");
+    const bool is_ggg = (sys.vertex() == "g_gg");
+
+    // extract potential mode
+    int mode = sys.mode();
 
     // define output vector, fill with zeros
     vector<dcomplex> HF(fH0.size(), dcomplex(0.0, 0.0));
@@ -155,13 +158,13 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
 
     // ---- Gauss-Legendre setup --- 
     const int n_radial = GL_RADIAL.nodes.size();
-    const int n_angular = 12; // can be adjusted for accuracy, 8 is a
+    const int n_angular = 12; // can be adjusted for accuracy
 
     
     // map Gauss-Legendre nodes from [-1,1] to integration domains
     // For radial: [pmin, pmax]
     double sp = mu;
-    double split =  10.0 * mu;
+    double split =  (mode == 2) ? 4.0 * mu : 10.0 * mu;
 
     vector<double> p1_nodes, p1_weights; // region [pmin, split]
     vector<double> p2_nodes, p2_weights; // region [split, pmax]
@@ -174,7 +177,7 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
 
     // Map separately for two radial subdomains. If split is outside [pmin,pmax],
     // one of the regions becomes the full interval.
-    double a1 = 0.1*mu;
+    double a1 = 0.0;
     double b1 = split; 
     double a2 = split;
     double b2 = 12.0*mu;
@@ -227,8 +230,6 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
     double two_z_minus_1 = 2.0 * z - 1.0;
     double two_z_minus_1_2 = two_z_minus_1 * two_z_minus_1;
 
-    // extract potential mode
-    int mode = sys.mode();
 
     // lambda to choose potential based on mode
     // 0 = yukawa, 1 = HTL, 2 = HO
@@ -301,7 +302,7 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
 
     // string vertex = sys.vertex(); <- this is not necessary since the function is already for qqbar
 
-    dcomplex prefac = - 4.0 * dcomplex(0, 1) * qtilde / (2.0 * PI); //temporarily with the 4 factor from the jacobian
+    dcomplex prefac = - 4.0 * dcomplex(0, 1) * qtilde / (2.0 * PI); //with the 4 factor from the jacobian
 
     // if (!is_large_Nc) {
     //     throw invalid_argument("Nc mode not implemented yet in Hamiltonian_qqbar");
@@ -421,9 +422,9 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
                     // sig=0 output:  M00 (into HF[idx0]) + M01 (cross term from sig=1)
                     dcomplex contrib0 = 2.0*CF * Sig0_f0;                                 // M00, Sig0
                     
-                    dcomplex contrib1 =
-                        CA * (f0_2zp_lmp + f0_2_1zp_lmp - f0_pmk_lmp - f0_ppk_lmp)  // M10
-                      + 2.0*CF * (2.0*f1_ - f1_kzp - f1_k1zp);                       // M11
+                    dcomplex contrib1 = 
+                          CA * (f0_2zp_lmp + f0_2_1zp_lmp - f0_pmk_lmp - f0_ppk_lmp)  // M10
+                          + 2.0*CF * (2.0*f1_ - f1_kzp - f1_k1zp);                   // M11
 
 
                     if(!is_large_Nc){
@@ -460,7 +461,6 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
                         double s = std::sqrt(std::max(0.0, 1.0 - c * c));
                         return std::atan2(s, c);
                     };
-
 
 
                     double angle_pmk_lmp = angle_from_cos(
@@ -521,12 +521,30 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
                     // ---- assemble M-matrix contributions ----
                     // sig=0 output:  M00 (into HF[idx0]) + M01 (cross term from sig=1)
                     dcomplex contrib0 = CA * (Sigp_f0 + Sig0_f0);                                 // M00, Sig0
+                    dcomplex contrib1 = CA * (-Sigzsc_f0 + Sig0_f0) + 2.0 * (CF * Sigm_f1 + CA * Sigp_f1); 
+
+                    dcomplex contrib2 = 0.0;
                     
-                    dcomplex contrib1 =
-                        CA * (-Sigzsc_f0 + Sig0_f0)  // M10
-                      + 2.0 * (CF * Sigm_f1 + CA * Sigp_f1);                       // M11
 
                     // if(!is_large_Nc){
+                    //     // we will have a new component
+                    //     // sample f[2] at all geometry points
+                    //     dcomplex f2_pmk_lmp    = get_fval(2, angle_pmk_lmp,     Rp_m_k,          Rp_m_l, ip, ik, il);
+                    //     dcomplex f2_ppk_lmp    = get_fval(2, angle_ppk_lmp,     Rp_p_k,          Rp_m_l, ip, ik, il);
+                    //     dcomplex f2_2zp_lmp    = get_fval(2, angle_k_m_2z_p,    R_k_m_2z_p,      Rp_m_l, ip, ik, il);
+                    //     dcomplex f2_2_1zp_lmp  = get_fval(2, angle_k_m_2_1z_p,  R_k_m_2_1z_p,    Rp_m_l, ip, ik, il);
+                    //     dcomplex f2_kzp        = get_fval(2, angle_k_zp_l,      R_k_zp,          l,      ip, ik, il);
+                    //     dcomplex f2_k1zp       = get_fval(2, angle_k_1zp_l,     R_k_1zp,         l,      ip, ik, il);
+
+                    //     // Sig for the extra component
+                    //     dcomplex Sig0_f2 = 2.0*f2_ - f2_pmk_lmp - f2_ppk_lmp;
+                    //     dcomplex Sigzsc_f2 = 2.0*f2_ - f2_2zp_lmp - f2_2_1zp_lmp;
+                    //     dcomplex Sigp_f2 = f2_ - f2_kzp;
+                    //     dcomplex Sigm_f2 = f2_ - f2_k1zp;
+                        
+                    //     contrib0 += -Sigm_f0/CA + (Sigzsc_f2 - Sig0_f2);
+
+                    //     contrib2 = (Sigzsc_f0 - Sig0_f0) + CA * (Sigzsc_f1 + Sig0_f1 -2.0 * (Sigp_f1 + Sigm_f1)) + (-(1/CA) * Sigm_f2 + CA * (Sigzsc_f2 + Sigp_f2)); //M20 + M21 + M22
                         
                     // }
 
@@ -535,7 +553,7 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
 
                 // ---- quadrature over region 1: [a1, b1] ----
                 if (half1 > 0.0) {
-                    int Nsim = std::max(2, 2 * n_radial);
+                    int Nsim = std::max(2, 2*n_radial);
                     // ensure Nsim is even for Simpson's rule
                     if (Nsim % 2 != 0) ++Nsim;
                     double h = (b1 - a1) / static_cast<double>(Nsim);
@@ -558,25 +576,25 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
                             if(is_gamma_qqbar){
                                 auto [d0, d1] = integrand_qqbar(p,  cj,  sj);
                                 auto [e0, e1] = integrand_qqbar(p, -cj, -sj);
-                                tacc0 += e0;
-                                tacc1 += e1;
+                                tacc0 += d0 + e0;
+                                tacc1 += d1 + e1;
                             }
 
                             if(is_qqg){
                                 auto [d0, d1] = integrand_qqg(p,  cj,  sj);
                                 auto [e0, e1] = integrand_qqg(p, -cj, -sj);
-                                tacc0 += e0;
-                                tacc1 += e1;
+                                tacc0 += d0 + e0;
+                                tacc1 += d1 + e1;
                             }
 
                             if(is_ggg){
                                 // not implemented yet
                                 auto [d0, d1] = integrand_qqg(p,  cj,  sj);
                                 auto [e0, e1] = integrand_qqg(p, -cj, -sj);
-                                tacc0 += d0;
-                                tacc1 += d1;
+                                tacc0 += d0 + e0;
+                                tacc1 += d1 + e1;
                             }
-                            
+
                             // theta in [pi, 2pi]  (cos -> -cos, sin -> -sin)
                         }
 

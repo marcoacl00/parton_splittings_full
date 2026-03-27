@@ -275,8 +275,8 @@ private:
 };
 
 // Global precomputed Gauss-Legendre quadrature points (initialize once)
-static const GaussLegendre GL_RADIAL(3);  // 3-point for radial integration
-static const GaussLegendre GL_ANGULAR(3); // 3-point for angular integration
+static const GaussLegendre GL_RADIAL(12);  // 12-point for radial integration
+static const GaussLegendre GL_ANGULAR(64); // 32-point for angular integration
 
 
 vector<dcomplex> Hamiltonian_J(const Physis_J& sys, 
@@ -441,7 +441,7 @@ vector<dcomplex> Hamiltonian_J(const Physis_J& sys,
                     const double w_th = theta_weights[j];
                     
                     const double Rval = std::sqrt(p_sq + pt_sq - 2.0 * p * pt * cos_t);
-                    if (Rval == 0.0) continue;
+                    if (fabs(Rval) < 1e-8) continue;
                     
                     const dcomplex fpt = sample_f(Rval);
                     const double ang_kernel = (1.0 / Rval) * (p - pt * cos_t);
@@ -461,7 +461,7 @@ vector<dcomplex> Hamiltonian_J(const Physis_J& sys,
                     const double w_th = theta_weights[j];
                     
                     const double Rval = std::sqrt(p_sq + pt_sq - 2.0 * p * pt * cos_t);
-                    if (Rval == 0.0) continue;
+                    if (fabs(Rval) < 1e-8) continue;
                     
                     const dcomplex fpt = sample_f(Rval);
                     const double ang_kernel = (1.0 / Rval) * (p - pt * cos_t);

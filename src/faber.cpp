@@ -40,10 +40,10 @@ void faber_params3D_ker(const Physis_J& sys, double &lambda_F, dcomplex &gamma_0
     double qtilde = sys.qtilde();
     std::cout << "delta_p: " << delta_p / 5.067 << " GeV \n";
 
-    double lam_re_max = Lp*Lp / (2.0 * omega);
+    double lam_re_max = Lp*Lp / (omega);
     double lam_re_min = 0.0;
-    double lam_im_max = 0.25*qtilde/(delta_p*delta_p) ;
-    double lam_im_min = -0.25*qtilde/(delta_p*delta_p) ;
+    double lam_im_max = qtilde/(mu*mu*mu*mu)  +  qtilde/(delta_p*delta_p);
+    double lam_im_min = -qtilde/(mu*mu*mu*mu) -  qtilde/(delta_p*delta_p); ;
 
     double c = (lam_re_max - lam_re_min)/2.0;
     double l = (lam_im_max - lam_im_min)/2.0;
@@ -78,7 +78,7 @@ void faber_params3D_full(const Physis& sys, double &lambda_F, dcomplex &gamma_0,
     double lam_re_max = Lk*Ll / omega;
     double lam_re_min = -Lk*Ll / omega;
     double lam_im_max = 0.0;
-    double lam_im_min = - 4.0 * qtilde * 1.0 / 8.0 /(delta_k*delta_k) - qtilde/(delta_l*delta_l);
+    double lam_im_min = - 4.0 * qtilde * 1.0 / 8.0 /(delta_k*delta_k) - 4.0 * qtilde * 1.0 / 8.0 /(delta_l*delta_l);
 
     double c = (lam_re_max - lam_re_min)/2.0;
     double l = (lam_im_max - lam_im_min)/2.0;
