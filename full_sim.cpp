@@ -20,14 +20,21 @@ const dcomplex I(0.0, 1.0);
 int main(int argc, char* argv[]) {
 
     // physics parameters
-    double E  = 100.0;
+    double E  = 200.0;
     double z = 0.5;
     double qtilde = 1.5;
-    double Lp =  4.0* E * z * (1 - z);
-    double Lk =  0.325 * Lp;
-    double Ll = 0.3 *  Lk;
-    double mu = 0.4;
-    string vertex = "gamma_qq";
+    double Lp =  2.0 * E * z * (1 - z);
+    double Lk =  0.5 * Lp;
+    double Ll =  0.25 * Lk;
+    double mu = 0.3;
+    // q->qg: the less soft it gets, the more is necessary to increase both Nl, Ll and Npsi
+    // for the g->gg this is not the case, which sucks
+    int Nk = 50;
+    int Nl = 30; 
+    int Npsi = 3;
+
+    bool only_j = false; // if true, only compute the in-out evolution and skip the full 3D evolution 
+    string vertex = "q_qg";
     string Nc_mode = "LNc";
 
     int mode = 0;
@@ -58,7 +65,7 @@ int main(int argc, char* argv[]) {
     else if (mode == 1){
         file_name_2D = "./data/fsol_final_htl.dat";
         file_name_3D = "./data/fsol3D_final_htl.dat";
-        p_min_coeff = 0.8;
+        p_min_coeff = 0.6;
         p_max_coeff = 30.0;
     }
     else{
@@ -69,20 +76,20 @@ int main(int argc, char* argv[]) {
     }
 
     // initialize simulation objects 
-    Physis_J sis(E, z, qtilde, Lp, mu, mode, vertex);
+    Physis_J sis(E, z, qtilde, Lp, mu, mode, vertex, Nc_mode);
     Physis sis_f(E, z, qtilde, Lk, Ll, mu, mode, vertex, Nc_mode);
     // set dimensions
     sis.set_dim(512);
-    sis_f.set_dim(80, 50, 6);
+    sis_f.set_dim(Nk, Nl, Npsi);
 
 
-    // initialize the solution
+    // initialize the solutiona
     sis.init_fsol();
     sis_f.init_fsol();
     
 
     // maximum time (medium length)
-    double t_L = 1.0;
+    double t_L = 0.02;
 
     // time step
     
@@ -217,6 +224,15 @@ int main(int argc, char* argv[]) {
 
             sis.set_fsol(newFsol);
 
+            double max_real = std::numeric_limits<double>::lowest();
+            double max_imag = std::numeric_limits<double>::lowest();
+            for (const auto &v : newFsol) {
+                if (!isnan(v.real())) max_real = std::max(max_real, v.real());
+                if (!isnan(v.imag())) max_imag = std::max(max_imag, v.imag());
+            }
+            std::cout << "max_real_newFsol = " << max_real << "\n";
+            std::cout << "max_imag_newFsol = " << max_imag << "\n";
+
             // NaN checks
             for (auto &v : nHom) {
                 if (isnan(v.real()) || isnan(v.imag())) {
@@ -252,7 +268,7 @@ int main(int argc, char* argv[]) {
         // after completing the in-out contribution, we move to the full 3D evolution
         // in-out will be ued as source term for the full evolution
         // -------------------------------//
-
+        if(!only_j){
         auto nHom_f = sis_f.source_term(sis.P(), fsol_t_dt, sis_f.t());  // source term at time t + ht
         //repeat logic for full 3D evolution
 
@@ -334,6 +350,7 @@ int main(int argc, char* argv[]) {
         }
 
     }
+}
 
 
     auto tend = chrono::high_resolution_clock::now();
@@ -357,7 +374,7 @@ int main(int argc, char* argv[]) {
             base = base.substr(0, p);
         }
         std::ostringstream ss;
-        ss << base << "_" <<vertex << "_" "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << ext;
+        ss << base << "_" << vertex << "_" "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << ext;
         file_name_2D = ss.str();
     }
 
@@ -372,17 +389,18 @@ int main(int argc, char* argv[]) {
     cout << "Result saved in " << file_name_2D << endl;
 
     // ---- Save results of full 3D in .dat files...-----//
-    {
-        // append parameter values to filename before the extension
-        string base = file_name_3D;
-        string ext;
-        auto p = base.rfind('.');
-        if (p != string::npos) {
-            ext = base.substr(p);
-            base = base.substr(0, p);
-        }
-        std::ostringstream ss;
-        ss << base << "_" <<vertex << "_" "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << ext;
+    if (!only_j) {
+        {
+            // append parameter values to filename before the extension
+            string base = file_name_3D;
+            string ext;
+            auto p = base.rfind('.');
+            if (p != string::npos) {
+                ext = base.substr(p);
+                base = base.substr(0, p);
+            }
+            std::ostringstream ss;
+        ss << base << "_" << vertex << "_" "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << "_L_" << t_L << ext;
         file_name_3D = ss.str();
     }
 
@@ -393,6 +411,7 @@ int main(int argc, char* argv[]) {
         ofs_f << " " << sis_f.Fsol()[sis_f.idx(1, 0, 0, ik)].real() << "\n";
     }
     ofs_f.close();
+    }
 
     return 0;
 }
