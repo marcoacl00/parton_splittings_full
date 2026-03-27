@@ -246,59 +246,62 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
     std::vector<dcomplex> fk, fkk, fl, fll, flk, fp, fpp, fpk, fpl;
     precompute_derivatives_3d(sys, fH0, fk, fkk, fl, fll, fp, fpp, flk, fpl, fpk);
 
-
+    struct Fcomp {dcomplex f_0, f_1;};
 
     // sampler with 2nd order Taylor expansion around nearest grid point, with hard domain checks
-    auto get_fval = [&](int sig, double psi, double k, double l, int ip_, int ik_, int il_) -> dcomplex {
-        // --- clamp psi to domain ---
-        psi = std::clamp(psi, psi_min, psi_max);
-        k   = std::clamp(k, k_min, k_max);
-        l   = std::clamp(l, l_min, l_max);
+    auto get_fval2 = [&](double psi, double k, double l) -> Fcomp {
+        // --- clamp to domain ---
+            psi = std::clamp(psi, psi_min, psi_max);
+            k   = std::clamp(k,   k_min,   k_max);
+            l   = std::clamp(l,   l_min,   l_max);
 
-        // --- angular interpolation (linear) ---
-        // Map psi to index in psi_array
-        // For simplicity, assume psi_array is sorted ascending
-        ip_ = std::clamp(static_cast<int>((psi - psi_min) * inv_dpsi), 0, Npsi - 2);
-        double t_psi = (psi - psi_array[ip_]) / (psi_array[ip_ + 1] - psi_array[ip_]);
+            // --- compute indices ONCE ---
+            int ip_ = std::clamp(static_cast<int>((psi - psi_min) * inv_dpsi), 0, Npsi - 2);
+            int ik_ = std::clamp(static_cast<int>((k   - k_min)   * inv_dk),   0, Nk   - 2);
+            int il_ = std::clamp(static_cast<int>((l   - l_min)   * inv_dl),   0, Nl   - 2);
 
-        // --- k,l indices ---
-        ik_ = std::clamp(static_cast<int>((k - k_min) * inv_dk), 0, Nk - 2);
-        il_ = std::clamp(static_cast<int>((l - l_min) * inv_dl), 0, Nl - 2);
+            double t_psi = (psi - psi_array[ip_]) * inv_dpsi;
+            double t_k   = k - K_array[ik_];
+            double t_l   = l - L_array[il_];
 
-        // --- load Taylor expansion coefficients at psi_array[ip_] ---
-        dcomplex f000 = fH0[sys.idx(sig, ip_, il_, ik_)];
-        dcomplex f_k   = fk[sys.idx(sig, ip_, il_, ik_)];
-        dcomplex f_l   = fl[sys.idx(sig, ip_, il_, ik_)];
-        dcomplex f_kk  = fkk[sys.idx(sig, ip_, il_, ik_)];
-        dcomplex f_ll  = fll[sys.idx(sig, ip_, il_, ik_)];
-        dcomplex f_kl  = flk[sys.idx(sig, ip_, il_, ik_)];
+            double tk2   = 0.5 * t_k * t_k;
+            double tl2   = 0.5 * t_l * t_l;
+            double tkl   =       t_k * t_l;
 
-        // --- offsets ---
-        double t_k = k - K_array[ik_];
-        double t_l = l - L_array[il_];
+            // --- flat indices computed once, reused for both sigma ---
+            int base0  = sys.idx(0, ip_,     il_, ik_);
+            int base1  = sys.idx(1, ip_,     il_, ik_);
+            int base0n = sys.idx(0, ip_ + 1, il_, ik_);
+            int base1n = sys.idx(1, ip_ + 1, il_, ik_);
 
-        // --- Taylor expansion in k,l only ---
-        dcomplex fval_kl = f000
-            + f_k * t_k
-            + f_l * t_l
-            + 0.5 * f_kk * t_k * t_k
-            + 0.5 * f_ll * t_l * t_l
-            + f_kl  * t_k * t_l;
+            // --- sigma 0, psi slice ---
+            dcomplex v0 = fH0[base0]
+                + fk [base0] * t_k  + fl [base0] * t_l
+                + fkk[base0] * tk2  + fll[base0] * tl2
+                + flk[base0] * tkl;
 
-        // --- linear interpolation in psi ---
-        // Take next psi grid point
-        dcomplex fval_kl_next = fH0[sys.idx(sig, ip_ + 1, il_, ik_)]
-            + fk[sys.idx(sig, ip_ + 1, il_, ik_)] * t_k
-            + fl[sys.idx(sig, ip_ + 1, il_, ik_)] * t_l
-            + 0.5 * fkk[sys.idx(sig, ip_ + 1, il_, ik_)] * t_k * t_k
-            + 0.5 * fll[sys.idx(sig, ip_ + 1, il_, ik_)] * t_l * t_l
-            + flk[sys.idx(sig, ip_ + 1, il_, ik_)] * t_k * t_l;
+            // --- sigma 0, next psi slice ---
+            dcomplex v0n = fH0[base0n]
+                + fk [base0n] * t_k  + fl [base0n] * t_l
+                + fkk[base0n] * tk2  + fll[base0n] * tl2
+                + flk[base0n] * tkl;
 
-        // Linear interpolation in ψ
-        dcomplex fval = (1.0 - t_psi) * fval_kl + t_psi * fval_kl_next;
+            // --- sigma 1, psi slice ---
+            dcomplex v1 = fH0[base1]
+                + fk [base1] * t_k  + fl [base1] * t_l
+                + fkk[base1] * tk2  + fll[base1] * tl2
+                + flk[base1] * tkl;
 
-        return fval;
-    };
+            // --- sigma 1, next psi slice ---
+            dcomplex v1n = fH0[base1n]
+                + fk [base1n] * t_k  + fl [base1n] * t_l
+                + fkk[base1n] * tk2  + fll[base1n] * tl2
+                + flk[base1n] * tkl;
+
+            double one_t = 1.0 - t_psi;
+            return { one_t * v0 + t_psi * v0n,
+                    one_t * v1 + t_psi * v1n };
+        };
 
     // string vertex = sys.vertex(); <- this is not necessary since the function is already for qqbar
 
@@ -380,26 +383,21 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
                         -pk*cos_th - p*two_z_minus_1*(p - pl*cos_theta_minus_psi) + kl*cos_psi,
                         R_k_m_2_1z_p * Rp_m_l);
 
-                    double angle_k_zp_l  = (il > 0) ? acos_spline(std::clamp(
-                        (k*cos_psi - 2.0*z*p*cos_theta_minus_psi)    / (R_k_zp  + 1e-12), -1.0, 1.0)) : 0.0;
-                    double angle_k_1zp_l = (il > 0) ? acos_spline(std::clamp(
-                        (k*cos_psi - 2.0*one_z*p*cos_theta_minus_psi)/ (R_k_1zp + 1e-12), -1.0, 1.0)) : 0.0;
+                    double angle_k_zp_l  = (il > 0) ? std::acos(std::clamp((k*cos_psi - 2.0*z*p*cos_theta_minus_psi)     / (R_k_zp  + 1e-12), -1.0, 1.0)) : 0.0;
+
+                    double angle_k_1zp_l = (il > 0) ? std::acos(std::clamp((k*cos_psi - 2.0*one_z*p*cos_theta_minus_psi) / (R_k_1zp + 1e-12), -1.0, 1.0)) : 0.0;
+
+
 
                     // ---- sample f[0] at all geometry points ----
-                    dcomplex f0_pmk_lmp    = get_fval(0, angle_pmk_lmp,     Rp_m_k,          Rp_m_l, ip, ik, il);
-                    dcomplex f0_ppk_lmp    = get_fval(0, angle_ppk_lmp,     Rp_p_k,          Rp_m_l, ip, ik, il);
-                    dcomplex f0_2zp_lmp    = get_fval(0, angle_k_m_2z_p,    R_k_m_2z_p,      Rp_m_l, ip, ik, il);
-                    dcomplex f0_2_1zp_lmp  = get_fval(0, angle_k_m_2_1z_p,  R_k_m_2_1z_p,    Rp_m_l, ip, ik, il);
-                    dcomplex f0_kzp        = get_fval(0, angle_k_zp_l,      R_k_zp,          l,      ip, ik, il);
-                    dcomplex f0_k1zp       = get_fval(0, angle_k_1zp_l,     R_k_1zp,         l,      ip, ik, il);
+                    auto [f0_pmk_lmp,   f1_pmk_lmp]   = get_fval2(angle_pmk_lmp,    Rp_m_k,      Rp_m_l);
+                    auto [f0_ppk_lmp,   f1_ppk_lmp]   = get_fval2(angle_ppk_lmp,    Rp_p_k,      Rp_m_l);
+                    auto [f0_2zp_lmp,   f1_2zp_lmp]   = get_fval2(angle_k_m_2z_p,   R_k_m_2z_p,  Rp_m_l);
+                    auto [f0_2_1zp_lmp, f1_2_1zp_lmp] = get_fval2(angle_k_m_2_1z_p, R_k_m_2_1z_p,Rp_m_l);
+                    auto [f0_kzp,       f1_kzp]        = get_fval2(angle_k_zp_l,     R_k_zp,      l);
+                    auto [f0_k1zp,      f1_k1zp]       = get_fval2(angle_k_1zp_l,    R_k_1zp,     l);
 
-                    // ---- sample f[1] at all geometry points ----
-                    dcomplex f1_pmk_lmp    = get_fval(1, angle_pmk_lmp,     Rp_m_k,          Rp_m_l, ip, ik, il);
-                    dcomplex f1_ppk_lmp    = get_fval(1, angle_ppk_lmp,     Rp_p_k,          Rp_m_l, ip, ik, il);
-                    dcomplex f1_2zp_lmp    = get_fval(1, angle_k_m_2z_p,    R_k_m_2z_p,      Rp_m_l, ip, ik, il);
-                    dcomplex f1_2_1zp_lmp  = get_fval(1, angle_k_m_2_1z_p,  R_k_m_2_1z_p,    Rp_m_l, ip, ik, il);
-                    dcomplex f1_kzp        = get_fval(1, angle_k_zp_l,      R_k_zp,          l,      ip, ik, il);
-                    dcomplex f1_k1zp       = get_fval(1, angle_k_1zp_l,     R_k_1zp,         l,      ip, ik, il);
+
 
                     // ---- build Sigma combinations ----
                     // Sig0:  2f - f(k-p, l-p) - f(k+p, l-p)
@@ -479,27 +477,20 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
                         -pk*cos_th - p*two_z_minus_1*(p - pl*cos_theta_minus_psi) + kl*cos_psi,
                         R_k_m_2_1z_p * Rp_m_l);
 
-                    double angle_k_zp_l  = (il > 0) ? acos_spline(std::clamp(
-                        (k*cos_psi - 2.0*z*p*cos_theta_minus_psi)    / (R_k_zp  + 1e-12), -1.0, 1.0)) : 0.0;
-                    double angle_k_1zp_l = (il > 0) ? acos_spline(std::clamp(
-                        (k*cos_psi - 2.0*one_z*p*cos_theta_minus_psi)/ (R_k_1zp + 1e-12), -1.0, 1.0)) : 0.0;
+                    double angle_k_zp_l  = (il > 0) ? std::acos(std::clamp((k*cos_psi - 2.0*z*p*cos_theta_minus_psi)     / (R_k_zp  + 1e-12), -1.0, 1.0)) : 0.0;
+
+                    double angle_k_1zp_l = (il > 0) ? std::acos(std::clamp((k*cos_psi - 2.0*one_z*p*cos_theta_minus_psi) / (R_k_1zp + 1e-12), -1.0, 1.0)) : 0.0;
 
 
                     // ---- sample f[0] at all geometry points ----
-                    dcomplex f0_pmk_lmp    = get_fval(0, angle_pmk_lmp,     Rp_m_k,          Rp_m_l, ip, ik, il);
-                    dcomplex f0_ppk_lmp    = get_fval(0, angle_ppk_lmp,     Rp_p_k,          Rp_m_l, ip, ik, il);
-                    dcomplex f0_2zp_lmp    = get_fval(0, angle_k_m_2z_p,    R_k_m_2z_p,      Rp_m_l, ip, ik, il);
-                    dcomplex f0_2_1zp_lmp  = get_fval(0, angle_k_m_2_1z_p,  R_k_m_2_1z_p,    Rp_m_l, ip, ik, il);
-                    dcomplex f0_kzp        = get_fval(0, angle_k_zp_l,      R_k_zp,          l,      ip, ik, il);
-                    dcomplex f0_k1zp       = get_fval(0, angle_k_1zp_l,     R_k_1zp,         l,      ip, ik, il);
+                    auto [f0_pmk_lmp,   f1_pmk_lmp]   = get_fval2(angle_pmk_lmp,    Rp_m_k,      Rp_m_l);
+                    auto [f0_ppk_lmp,   f1_ppk_lmp]   = get_fval2(angle_ppk_lmp,    Rp_p_k,      Rp_m_l);
+                    auto [f0_2zp_lmp,   f1_2zp_lmp]   = get_fval2(angle_k_m_2z_p,   R_k_m_2z_p,  Rp_m_l);
+                    auto [f0_2_1zp_lmp, f1_2_1zp_lmp] = get_fval2(angle_k_m_2_1z_p, R_k_m_2_1z_p,Rp_m_l);
+                    auto [f0_kzp,       f1_kzp]        = get_fval2(angle_k_zp_l,     R_k_zp,      l);
+                    auto [f0_k1zp,      f1_k1zp]       = get_fval2(angle_k_1zp_l,    R_k_1zp,     l);
 
-                    // ---- sample f[1] at all geometry points ----
-                    dcomplex f1_pmk_lmp    = get_fval(1, angle_pmk_lmp,     Rp_m_k,          Rp_m_l, ip, ik, il);
-                    dcomplex f1_ppk_lmp    = get_fval(1, angle_ppk_lmp,     Rp_p_k,          Rp_m_l, ip, ik, il);
-                    dcomplex f1_2zp_lmp    = get_fval(1, angle_k_m_2z_p,    R_k_m_2z_p,      Rp_m_l, ip, ik, il);
-                    dcomplex f1_2_1zp_lmp  = get_fval(1, angle_k_m_2_1z_p,  R_k_m_2_1z_p,    Rp_m_l, ip, ik, il);
-                    dcomplex f1_kzp        = get_fval(1, angle_k_zp_l,      R_k_zp,          l,      ip, ik, il);
-                    dcomplex f1_k1zp       = get_fval(1, angle_k_1zp_l,     R_k_1zp,         l,      ip, ik, il);
+
 
                     // ---- build Sigma combinations ----
                     // Sig0:  2f - f(k-p, l-p) - f(k+p, l-p)

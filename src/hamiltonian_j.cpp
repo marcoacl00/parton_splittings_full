@@ -275,8 +275,8 @@ private:
 };
 
 // Global precomputed Gauss-Legendre quadrature points (initialize once)
-static const GaussLegendre GL_RADIAL(12);  // 12-point for radial integration
-static const GaussLegendre GL_ANGULAR(64); // 32-point for angular integration
+static const GaussLegendre GL_RADIAL(4);  // 12-point for radial integration
+static const GaussLegendre GL_ANGULAR(8); // 32-point for angular integration
 
 
 vector<dcomplex> Hamiltonian_J(const Physis_J& sys, 
