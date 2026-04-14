@@ -259,7 +259,7 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
     struct Fcomp3D {dcomplex f_0, f_1, f_2;};
 
     // sampler with 2nd order Taylor expansion around nearest grid point, with hard domain checks
-    auto get_fval2 = [&](double psi, double k, double l) -> Fcomp2D {
+    auto get_fval = [&](double psi, double k, double l) -> Fcomp2D {
         // --- clamp to domain ---
             psi = std::clamp(psi, psi_min, psi_max);
             k   = std::clamp(k,   k_min,   k_max);
@@ -399,12 +399,12 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
 
 
                     // ---- sample f[0] at all geometry points ----
-                    auto [f0_pmk_lmp,   f1_pmk_lmp]   = get_fval2(angle_pmk_lmp,    Rp_m_k,      Rp_m_l);
-                    auto [f0_ppk_lmp,   f1_ppk_lmp]   = get_fval2(angle_ppk_lmp,    Rp_p_k,      Rp_m_l);
-                    auto [f0_2zp_lmp,   f1_2zp_lmp]   = get_fval2(angle_k_m_2z_p,   R_k_m_2z_p,  Rp_m_l);
-                    auto [f0_2_1zp_lmp, f1_2_1zp_lmp] = get_fval2(angle_k_m_2_1z_p, R_k_m_2_1z_p,Rp_m_l);
-                    auto [f0_kzp,       f1_kzp]        = get_fval2(angle_k_zp_l,     R_k_zp,      l);
-                    auto [f0_k1zp,      f1_k1zp]       = get_fval2(angle_k_1zp_l,    R_k_1zp,     l);
+                    auto [f0_pmk_lmp,   f1_pmk_lmp]   = get_fval(angle_pmk_lmp,    Rp_m_k,      Rp_m_l);
+                    auto [f0_ppk_lmp,   f1_ppk_lmp]   = get_fval(angle_ppk_lmp,    Rp_p_k,      Rp_m_l);
+                    auto [f0_2zp_lmp,   f1_2zp_lmp]   = get_fval(angle_k_m_2z_p,   R_k_m_2z_p,  Rp_m_l);
+                    auto [f0_2_1zp_lmp, f1_2_1zp_lmp] = get_fval(angle_k_m_2_1z_p, R_k_m_2_1z_p,Rp_m_l);
+                    auto [f0_kzp,       f1_kzp]        = get_fval(angle_k_zp_l,     R_k_zp,      l);
+                    auto [f0_k1zp,      f1_k1zp]       = get_fval(angle_k_1zp_l,    R_k_1zp,     l);
 
 
 
@@ -508,12 +508,12 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
 
 
                     // ---- sample f[0] at all geometry points ----
-                    auto [f0_pmk_lmp,   f1_pmk_lmp]   = get_fval2(angle_pmk_lmp,    Rp_m_k,      Rp_m_l);
-                    auto [f0_ppk_lmp,   f1_ppk_lmp]   = get_fval2(angle_ppk_lmp,    Rp_p_k,      Rp_m_l);
-                    auto [f0_2zp_lmp,   f1_2zp_lmp]   = get_fval2(angle_k_m_2z_p,   R_k_m_2z_p,  Rp_m_l);
-                    auto [f0_2_1zp_lmp, f1_2_1zp_lmp] = get_fval2(angle_k_m_2_1z_p, R_k_m_2_1z_p,Rp_m_l);
-                    auto [f0_kzp,       f1_kzp]        = get_fval2(angle_k_zp_l,     R_k_zp,      l);
-                    auto [f0_k1zp,      f1_k1zp]       = get_fval2(angle_k_1zp_l,    R_k_1zp,     l);
+                    auto [f0_pmk_lmp,   f1_pmk_lmp]   = get_fval(angle_pmk_lmp,    Rp_m_k,      Rp_m_l);
+                    auto [f0_ppk_lmp,   f1_ppk_lmp]   = get_fval(angle_ppk_lmp,    Rp_p_k,      Rp_m_l);
+                    auto [f0_2zp_lmp,   f1_2zp_lmp]   = get_fval(angle_k_m_2z_p,   R_k_m_2z_p,  Rp_m_l);
+                    auto [f0_2_1zp_lmp, f1_2_1zp_lmp] = get_fval(angle_k_m_2_1z_p, R_k_m_2_1z_p,Rp_m_l);
+                    auto [f0_kzp,       f1_kzp]        = get_fval(angle_k_zp_l,     R_k_zp,      l);
+                    auto [f0_k1zp,      f1_k1zp]       = get_fval(angle_k_1zp_l,    R_k_1zp,     l);
 
 
 
@@ -542,27 +542,27 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
                     dcomplex contrib2 = 0.0;
                     
 
-                    if(!is_large_Nc){
-                        // we will have a new component
-                        // sample f[2] at all geometry points
-                        dcomplex f2_pmk_lmp    = get_fval(2, angle_pmk_lmp,     Rp_m_k,          Rp_m_l, ip, ik, il);
-                        dcomplex f2_ppk_lmp    = get_fval(2, angle_ppk_lmp,     Rp_p_k,          Rp_m_l, ip, ik, il);
-                        dcomplex f2_2zp_lmp    = get_fval(2, angle_k_m_2z_p,    R_k_m_2z_p,      Rp_m_l, ip, ik, il);
-                        dcomplex f2_2_1zp_lmp  = get_fval(2, angle_k_m_2_1z_p,  R_k_m_2_1z_p,    Rp_m_l, ip, ik, il);
-                        dcomplex f2_kzp        = get_fval(2, angle_k_zp_l,      R_k_zp,          l,      ip, ik, il);
-                        dcomplex f2_k1zp       = get_fval(2, angle_k_1zp_l,     R_k_1zp,         l,      ip, ik, il);
+                    // if(!is_large_Nc){
+                    //     // we will have a new component
+                    //     // sample f[2] at all geometry points
+                    //     dcomplex f2_pmk_lmp    = get_fval(2, angle_pmk_lmp,     Rp_m_k,          Rp_m_l, ip, ik, il);
+                    //     dcomplex f2_ppk_lmp    = get_fval(2, angle_ppk_lmp,     Rp_p_k,          Rp_m_l, ip, ik, il);
+                    //     dcomplex f2_2zp_lmp    = get_fval(2, angle_k_m_2z_p,    R_k_m_2z_p,      Rp_m_l, ip, ik, il);
+                    //     dcomplex f2_2_1zp_lmp  = get_fval(2, angle_k_m_2_1z_p,  R_k_m_2_1z_p,    Rp_m_l, ip, ik, il);
+                    //     dcomplex f2_kzp        = get_fval(2, angle_k_zp_l,      R_k_zp,          l,      ip, ik, il);
+                    //     dcomplex f2_k1zp       = get_fval(2, angle_k_1zp_l,     R_k_1zp,         l,      ip, ik, il);
 
-                        // Sig for the extra component
-                        dcomplex Sig0_f2 = 2.0*f2_ - f2_pmk_lmp - f2_ppk_lmp;
-                        dcomplex Sigzsc_f2 = 2.0*f2_ - f2_2zp_lmp - f2_2_1zp_lmp;
-                        dcomplex Sigp_f2 = f2_ - f2_kzp;
-                        dcomplex Sigm_f2 = f2_ - f2_k1zp;
+                    //     // Sig for the extra component
+                    //     dcomplex Sig0_f2 = 2.0*f2_ - f2_pmk_lmp - f2_ppk_lmp;
+                    //     dcomplex Sigzsc_f2 = 2.0*f2_ - f2_2zp_lmp - f2_2_1zp_lmp;
+                    //     dcomplex Sigp_f2 = f2_ - f2_kzp;
+                    //     dcomplex Sigm_f2 = f2_ - f2_k1zp;
                         
-                        contrib0 += -Sigp_f0/CA + (Sigzsc_f2 - Sig0_f2);
+                    //     contrib0 += -Sigp_f0/CA + (Sigzsc_f2 - Sig0_f2);
 
-                        contrib2 = (Sigzsc_f0 - Sig0_f0) + CA * (Sigzsc_f1 + Sig0_f1 -2.0 * (Sigp_f1 + Sigm_f1)) + (-(1/CA) * Sigp_f2 + CA * (Sigzsc_f2 + Sigm_f2)); //M20 + M21 + M22
+                    //     contrib2 = (Sigzsc_f0 - Sig0_f0) + CA * (Sigzsc_f1 + Sig0_f1 -2.0 * (Sigp_f1 + Sigm_f1)) + (-(1/CA) * Sigp_f2 + CA * (Sigzsc_f2 + Sigm_f2)); //M20 + M21 + M22
                         
-                    }
+                    // }
 
                     return {contrib0, contrib1, contrib2};
                 };
@@ -633,12 +633,12 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
 
 
                     // ---- sample f[0] at all geometry points ----
-                    auto [f0_pmk_lmp,   f1_pmk_lmp]   = get_fval2(angle_pmk_lmp,    Rp_m_k,      Rp_m_l);
-                    auto [f0_ppk_lmp,   f1_ppk_lmp]   = get_fval2(angle_ppk_lmp,    Rp_p_k,      Rp_m_l);
-                    auto [f0_2zp_lmp,   f1_2zp_lmp]   = get_fval2(angle_k_m_2z_p,   R_k_m_2z_p,  Rp_m_l);
-                    auto [f0_2_1zp_lmp, f1_2_1zp_lmp] = get_fval2(angle_k_m_2_1z_p, R_k_m_2_1z_p,Rp_m_l);
-                    auto [f0_kzp,       f1_kzp]        = get_fval2(angle_k_zp_l,     R_k_zp,      l);
-                    auto [f0_k1zp,      f1_k1zp]       = get_fval2(angle_k_1zp_l,    R_k_1zp,     l);
+                    auto [f0_pmk_lmp,   f1_pmk_lmp]   = get_fval(angle_pmk_lmp,    Rp_m_k,      Rp_m_l);
+                    auto [f0_ppk_lmp,   f1_ppk_lmp]   = get_fval(angle_ppk_lmp,    Rp_p_k,      Rp_m_l);
+                    auto [f0_2zp_lmp,   f1_2zp_lmp]   = get_fval(angle_k_m_2z_p,   R_k_m_2z_p,  Rp_m_l);
+                    auto [f0_2_1zp_lmp, f1_2_1zp_lmp] = get_fval(angle_k_m_2_1z_p, R_k_m_2_1z_p,Rp_m_l);
+                    auto [f0_kzp,       f1_kzp]        = get_fval(angle_k_zp_l,     R_k_zp,      l);
+                    auto [f0_k1zp,      f1_k1zp]       = get_fval(angle_k_1zp_l,    R_k_1zp,     l);
 
 
 
@@ -668,7 +668,7 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
                     
 
                     if(!is_large_Nc){
-                        std::throw invalid_argument("Nc mode not implemented yet in ggg case");
+                        std::cerr << "Nc mode not implemented yet in ggg case" << std::endl;
                     }
 
                     return {contrib0, contrib1, contrib2};
@@ -718,9 +718,9 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
                                 vector<dcomplex> e = integrand_ggg(p, -cj, -sj);
                                 tacc0 += d[0] + e[0];
                                 tacc1 += d[1] + e[1];
-                                if(!is_large_Nc){
-                                    std::throw invalid_argument("Nc mode not implemented yet in ggg case");
-                                }
+                                // if(!is_large_Nc){
+                                //     std::throw invalid_argument("Nc mode not implemented yet in ggg case");
+                                // }
                             }
 
                             // theta in [pi, 2pi]  (cos -> -cos, sin -> -sin)

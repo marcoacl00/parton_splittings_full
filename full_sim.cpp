@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
     int Npsi = 5;
 
     bool only_j = false; // if true, only compute the in-out evolution and skip the full 3D evolution 
-    string vertex = "q_qg";
+    string vertex = "gamma_qq";
     string Nc_mode = "LNc";
 
     int mode = 0;
@@ -57,22 +57,32 @@ int main(int argc, char* argv[]) {
 
 
     if (mode ==  0){
-        file_name_2D = "./data/fsol_final_yuk.dat";
-        file_name_3D = "./data/fsol3D_final_yuk.dat";
+        ///data/{vertex}_{Nc_mode}_final_{potential}.dat
+        file_name_2D = "./data/" + vertex + "_" + Nc_mode + "/final_yuk.dat";
+        file_name_3D = "./data/" + vertex + "_" + Nc_mode + "/final3D_yuk.dat";
         p_min_coeff = 0.8;
         p_max_coeff = 30.0;
     }
     else if (mode == 1){
-        file_name_2D = "./data/fsol_final_htl.dat";
-        file_name_3D = "./data/fsol3D_final_htl.dat";
+        file_name_2D = "./data/" + vertex + "_" + Nc_mode + "/final_htl.dat";
+        file_name_3D = "./data/" + vertex + "_" + Nc_mode + "/final3D_htl.dat";
         p_min_coeff = 0.6;
         p_max_coeff = 30.0;
     }
     else{
-         file_name_2D = "./data/fsol_final_ho.dat";
-        file_name_3D = "./data/fsol3D_final_ho.dat";
+         file_name_2D = "./data/" + vertex + "_" + Nc_mode + "/final_ho.dat";
+         file_name_3D = "./data/" + vertex + "_" + Nc_mode + "/final3D_ho.dat";
         p_min_coeff = 4.0;
         p_max_coeff = 10.0;
+    }
+
+    // if directory "./data/" + vertex + "_" + Nc_mode does not exist, create it
+    string dir_name = "./data/" + vertex + "_" + Nc_mode;
+    if (!filesystem::exists(dir_name)) {
+        if (!filesystem::create_directory(dir_name)) {
+            cerr << "Error: could not create directory " << dir_name << "\n";
+            return 1;
+        }
     }
 
     // initialize simulation objects 
@@ -89,7 +99,7 @@ int main(int argc, char* argv[]) {
     
 
     // maximum time (medium length)
-    double t_L = 4;
+    double t_L = 0.1;
 
     // time step
     
@@ -345,6 +355,49 @@ int main(int argc, char* argv[]) {
             cerr << "Completed step " << cont << ", t = " << sis_f.t() << "\n";
         }
 
+        // replicate end-of-simulation saving (save intermediate results, don't overwrite original names)
+        if ((cont % 5 == 1)) {
+            // build intermediate 2D filename (do not modify file_name_2D)
+            {
+            string base = file_name_2D;
+            string ext;
+            auto p = base.rfind('.');
+            if (p != string::npos) {
+                ext = base.substr(p);
+                base = base.substr(0, p);
+            }
+            std::ostringstream ss;
+            ss << base << "_" << vertex << "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << "_L_" << tt << ext;
+            string tmp2D = ss.str();
+
+            ofstream ofs(tmp2D);
+            for (int ix = 0; ix < sis.Np(); ++ix) {
+                auto v = sis.Fsol()[ix];
+                ofs << " " << v.real() << " " << v.imag() << "\n";
+            }
+            ofs.close();
+            }
+
+            // build intermediate 3D filename and save (if full evolution enabled)
+            if (!only_j) {
+            string base = file_name_3D;
+            string ext;
+            auto p = base.rfind('.');
+            if (p != string::npos) {
+                ext = base.substr(p);
+                base = base.substr(0, p);
+            }
+            std::ostringstream ss;
+            ss << base << "_" << vertex << "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << "_L_" << tt << ext;
+            string tmp3D = ss.str();
+
+            ofstream ofs_f(tmp3D);
+            for (int ik = 0; ik < sis_f.Nk(); ++ik) {
+                ofs_f << " " << sis_f.Fsol()[sis_f.idx(1, 0, 0, ik)].real() << "\n";
+            }
+            ofs_f.close();
+            }
+        }
     }
 }
 
@@ -370,7 +423,7 @@ int main(int argc, char* argv[]) {
             base = base.substr(0, p);
         }
         std::ostringstream ss;
-        ss << base << "_" << vertex << "_" "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << ext;
+        ss << base << "_" << vertex << "_" "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << "_L_" << t_L << ext;
         file_name_2D = ss.str();
     }
 
