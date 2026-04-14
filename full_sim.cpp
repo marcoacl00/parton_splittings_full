@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 
     // physics parameters
     double E  = 200.0;
-    double z = 0.5;
+    double z = 0.4;
     double qtilde = 1.5;
     double Lp =  2.0 * E * z * (1 - z);
     double Lk =  0.5 * Lp;
@@ -29,9 +29,9 @@ int main(int argc, char* argv[]) {
     double mu = 0.3;
     // q->qg: the less soft it gets, the more is necessary to increase both Nl, Ll and Npsi
     // for the g->gg this is not the case, which sucks
-    int Nk = 50;
-    int Nl = 30; 
-    int Npsi = 3;
+    int Nk = 80;
+    int Nl = 60; 
+    int Npsi = 5;
 
     bool only_j = false; // if true, only compute the in-out evolution and skip the full 3D evolution 
     string vertex = "q_qg";
@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
     
 
     // maximum time (medium length)
-    double t_L = 0.02;
+    double t_L = 4;
 
     // time step
     
@@ -224,27 +224,18 @@ int main(int argc, char* argv[]) {
 
             sis.set_fsol(newFsol);
 
-            double max_real = std::numeric_limits<double>::lowest();
-            double max_imag = std::numeric_limits<double>::lowest();
-            for (const auto &v : newFsol) {
-                if (!isnan(v.real())) max_real = std::max(max_real, v.real());
-                if (!isnan(v.imag())) max_imag = std::max(max_imag, v.imag());
-            }
-            std::cout << "max_real_newFsol = " << max_real << "\n";
-            std::cout << "max_imag_newFsol = " << max_imag << "\n";
+            // double max_real = std::numeric_limits<double>::lowest();
+            // double max_imag = std::numeric_limits<double>::lowest();
+            // for (const auto &v : newFsol) {
+            //     if (!isnan(v.real())) max_real = std::max(max_real, fabs(v.real()));
+            //     if (!isnan(v.imag())) max_imag = std::max(max_imag, fabs(v.imag()));
+            //     if(isnan(v.real()) || isnan(v.imag())) {
+            //         throw runtime_error("Warning: NaN detected in newFsol at t = " + to_string(sis.t()));
+            //     }
+            // }
+            // std::cout << "max_real_newFsol = " << max_real << "\n";
+            // std::cout << "max_imag_newFsol = " << max_imag << "\n";
 
-            // NaN checks
-            for (auto &v : nHom) {
-                if (isnan(v.real()) || isnan(v.imag())) {
-                    cerr << "Warning: NaN detected in nHom at t = " << sis.t() << "\n";
-                    break;
-                }
-            }
-            for (auto &v : newFsol) {
-                if (isnan(v.real()) || isnan(v.imag())) {
-                    throw runtime_error("NaN detected in nFsol at t = " + to_string(sis.t()));
-                }
-            }
 
             if(_ == 0){
                 fsol_t_dt_2 = sis.Fsol();
@@ -332,15 +323,20 @@ int main(int argc, char* argv[]) {
         }
 
         sis_f.set_fsol(newFsol_f);
+        
 
-        // NaN checks
-        for (auto &v : nHom_f) {
-            if (isnan(v.real()) || isnan(v.imag())) {
-                cerr << "Warning: NaN detected in nHom_f at t = " << sis_f.t() << "\n";
-                break;  
-
+        double max_real = std::numeric_limits<double>::lowest();
+        double max_imag = std::numeric_limits<double>::lowest();
+        for (const auto &v : newFsol_f) {
+            if (!isnan(v.real())) max_real = std::max(max_real, fabs(v.real()));
+            if (!isnan(v.imag())) max_imag = std::max(max_imag, fabs(v.imag()));
+            if(isnan(v.real()) || isnan(v.imag())) {
+                throw runtime_error("Warning: NaN detected in newFsol_f at t = " + to_string(sis.t()));
             }
         }
+
+        std::cout << "max_real_newFsol_f = " << max_real << "\n";
+        std::cout << "max_imag_newFsol_f = " << max_imag << "\n";
 
         sis_f.increase_t(ht);
 
