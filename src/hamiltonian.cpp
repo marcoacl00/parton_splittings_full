@@ -116,6 +116,8 @@ struct current_eval {
     double kl;
 };
 
+
+
 vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
 
     // extract all relevant parameters from sys once
@@ -251,8 +253,9 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
         else               return VHO_eff(p, mu);
     };
  
-    std::vector<dcomplex> fk, fkk, fl, fll, flk, fp, fpp, fpk, fpl;
-    precompute_derivatives_3d(sys, fH0, fk, fkk, fl, fll, fp, fpp, flk, fpl, fpk);
+    vector <InterpCoeffs> der_coeffs;
+
+    precompute_derivatives_3d(sys, fH0, der_coeffs);
  
     dcomplex prefac = -4.0 * dcomplex(0, 1) * qtilde / (2.0 * PI);
  
@@ -358,12 +361,13 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
             int base  = sys.idx(s, ip_,     il_, ik_);
             int basen = sys.idx(s, ip_ + 1, il_, ik_);
  
-            dcomplex v  = fH0[base]
-                        + fk [base]*t_k  + fl [base]*t_l
-                        + fkk[base]*tk2  + fll[base]*tl2 + flk[base]*tkl;
-            dcomplex vn = fH0[basen]
-                        + fk [basen]*t_k + fl [basen]*t_l
-                        + fkk[basen]*tk2 + fll[basen]*tl2 + flk[basen]*tkl;
+            const InterpCoeffs& c  = der_coeffs[base];
+            const InterpCoeffs& cn = der_coeffs[basen];
+
+            dcomplex v  = c.f  + c.fk *t_k + c.fl *t_l
+                            + c.fkk*tk2 + c.fll*tl2 + c.flk*tkl;
+            dcomplex vn = cn.f + cn.fk*t_k + cn.fl*t_l
+                            + cn.fkk*tk2 + cn.fll*tl2 + cn.flk*tkl;
  
             result[s] = one_t * v + t_psi * vn;
         }

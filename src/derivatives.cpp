@@ -6,18 +6,12 @@ using dcomplex = complex<double>;
 const double PI = 3.141592653589793;
 
 
+
+
 void precompute_derivatives_3d(
     const Physis& sys,
     const std::vector<dcomplex>& fH0,
-    std::vector<dcomplex>& fk,
-    std::vector<dcomplex>& fkk,
-    std::vector<dcomplex>& fl,
-    std::vector<dcomplex>& fll,
-    std::vector<dcomplex>& fp,
-    std::vector<dcomplex>& fpp,
-    std::vector<dcomplex>& flk,
-    std::vector<dcomplex>& fpl,
-    std::vector<dcomplex>& fpk
+    vector<InterpCoeffs>& coeffs
 ){
     int Nsig = sys.Nsig();
     int Nk = sys.Nk();
@@ -39,16 +33,7 @@ void precompute_derivatives_3d(
     double inv_delta_psi2 = inv_delta_psi * inv_delta_psi;
 
     // allocate derivative arrays
-    fk.assign(fH0.size(), dcomplex(0.0, 0.0)); // ∂f/∂k
-    fkk.assign(fH0.size(), dcomplex(0.0, 0.0)); // ∂²f/∂k²
-    fl.assign(fH0.size(), dcomplex(0.0, 0.0)); // ∂f/∂l
-    fll.assign(fH0.size(), dcomplex(0.0, 0.0)); // ∂²f/∂l²
-    fp.assign(fH0.size(), dcomplex(0.0, 0.0)); // ∂f/∂ψ
-    fpp.assign(fH0.size(), dcomplex(0.0, 0.0)); // ∂²f/∂ψ²
-    flk.assign(fH0.size(), dcomplex(0.0, 0.0)); // ∂²f/∂l∂k = ∂²f/∂k∂l
-    fpl.assign(fH0.size(), dcomplex(0.0, 0.0)); // ∂²f/∂ψ∂l = ∂²f/∂l∂ψ
-    fpk.assign(fH0.size(), dcomplex(0.0, 0.0)); // ∂²f/∂ψ∂k = ∂²f/∂k∂ψ
-
+    coeffs.resize(fH0.size());
     
     for(int s = 0; s < Nsig; s++){
 
@@ -71,7 +56,7 @@ void precompute_derivatives_3d(
 
                 // left boundary; use forward difference formulas 
                 // f'(k[0]) = (-3f0 + 4f1 - f2)/(2Δk) + O(Δk²)
-                fk[flat_idx] = (-3.0 * fH0[sys.idx(s, ip, il, 0)] 
+                coeffs[flat_idx].fk = (-3.0 * fH0[sys.idx(s, ip, il, 0)] 
                                 + 4.0 * fH0[sys.idx(s, ip, il, 1)] 
                                 - fH0[sys.idx(s, ip, il, 2)]) * (0.5 * inv_delta_k);
   
@@ -80,7 +65,7 @@ void precompute_derivatives_3d(
 
                 // right boundary; use backward difference formulas
                 // f'(k[N-1]) = (3fN - 4f(N-1) + f(N-2))/(2Δk) + O(Δk²)
-                fk[flat_idx] = (3.0 * fH0[sys.idx(s, ip, il, Nk-1)] 
+                coeffs[flat_idx].fk = (3.0 * fH0[sys.idx(s, ip, il, Nk-1)] 
                                 - 4.0 * fH0[sys.idx(s, ip, il, Nk-2)] 
                                 + fH0[sys.idx(s, ip, il, Nk-3)]) * (0.5 * inv_delta_k);
   
@@ -88,7 +73,7 @@ void precompute_derivatives_3d(
             } else {
                 // Bulk points
                 //  f'(i) = (f(i+1) - f(i-1))/(2Δk) + O(Δk²)
-                fk[flat_idx] = (fH0[sys.idx(s, ip, il, ik + 1)] - fH0[sys.idx(s, ip, il, ik - 1)]) * (0.5 * inv_delta_k);
+                coeffs[flat_idx].fk = (fH0[sys.idx(s, ip, il, ik + 1)] - fH0[sys.idx(s, ip, il, ik - 1)]) * (0.5 * inv_delta_k);
             }
             
 
@@ -98,7 +83,7 @@ void precompute_derivatives_3d(
                // right boundary; use forward difference (2nd order) formula:
                 // f''(0) = (2f0 - 5f1 +  4f2 - f3)/Δk² + O(Δk²)
 
-                fkk[flat_idx] = (2.0 * fH0[sys.idx(s, ip, il, 0)] 
+                coeffs[flat_idx].fkk = (2.0 * fH0[sys.idx(s, ip, il, 0)] 
                             - 5.0 * fH0[sys.idx(s, ip, il, 1)] 
                             + 4.0 * fH0[sys.idx(s, ip, il, 2)] 
                             - fH0[sys.idx(s, ip, il, 3)]) * inv_delta_k2;
@@ -107,7 +92,7 @@ void precompute_derivatives_3d(
                 // left boundary; use backward difference (2nd order) formula:
                 // f''(N) = (2fN - 5f(N-1) + 4f(N-2) - f(N-3))/Δk² + O(Δk²)
 
-                fkk[flat_idx] = (2.0 * fH0[sys.idx(s, ip, il, Nk-1)] 
+                coeffs[flat_idx].fkk = (2.0 * fH0[sys.idx(s, ip, il, Nk-1)] 
                             - 5.0 * fH0[sys.idx(s, ip, il, Nk-2)] 
                             + 4.0 * fH0[sys.idx(s, ip, il, Nk-3)] 
                             - fH0[sys.idx(s, ip, il, Nk-4)]) * inv_delta_k2;
@@ -116,7 +101,7 @@ void precompute_derivatives_3d(
             } else {
                 // bulk points
                 // Central difference (2nd order)
-                fkk[flat_idx] = (fH0[sys.idx(s, ip, il, ik + 1)] 
+                coeffs[flat_idx].fkk = (fH0[sys.idx(s, ip, il, ik + 1)] 
                             - 2.0 * fH0[sys.idx(s, ip, il, ik)] 
                             + fH0[sys.idx(s, ip, il, ik - 1)]) * inv_delta_k2;
             }
@@ -131,7 +116,7 @@ void precompute_derivatives_3d(
                 // left boundary; use forward difference (2nd order) formula:
                 // f'(0) = (-11f0 + 18f1 - 9f2 + 2f3)/(6Δl) + O(Δl²)
 
-              fl[flat_idx] = (-11.0 * fH0[sys.idx(s, ip, 0, ik)] 
+               coeffs[flat_idx].fl = (-11.0 * fH0[sys.idx(s, ip, 0, ik)] 
                             + 18.0 * fH0[sys.idx(s, ip, 1, ik)] 
                             - 9.0 * fH0[sys.idx(s, ip, 2, ik)] 
                             + 2.0 * fH0[sys.idx(s, ip, 3, ik)]) * (1.0 / (6.0)) * inv_delta_l ;
@@ -139,14 +124,14 @@ void precompute_derivatives_3d(
             } else if (il == Nl - 1) {
                 // right boundary; use backward difference (2nd order) formula:
                 // f'(N) ≈ (3fN - 4f(N-1) + f(N-2))/(2Δl)
-                fl[flat_idx] = (3.0 * fH0[sys.idx(s, ip, Nl-1, ik)] 
+                coeffs[flat_idx].fl = (3.0 * fH0[sys.idx(s, ip, Nl-1, ik)] 
                             - 4.0 * fH0[sys.idx(s, ip, Nl-2, ik)] 
                             + fH0[sys.idx(s, ip, Nl-3, ik)]) * (0.5 * inv_delta_l);
 
             } else {
                 // bulk points
                 // Central difference (2nd order)
-                fl[flat_idx] = (fH0[sys.idx(s, ip, il + 1, ik)] - fH0[sys.idx(s, ip, il - 1, ik)]) * (0.5 * inv_delta_l);
+                coeffs[flat_idx].fl = (fH0[sys.idx(s, ip, il + 1, ik)] - fH0[sys.idx(s, ip, il - 1, ik)]) * (0.5 * inv_delta_l);
             }
             
             // ----- ∂²f/∂l² -----
@@ -154,7 +139,7 @@ void precompute_derivatives_3d(
                 // this one is very important; the relevant solution is at l = 0
                 // left boundary; we will use 3rd order forward difference formula to get better accuracy:
                 // f''(0) = (-35f0 + 104f1 - 114f2 + 56f3 - 11f4)/(12Δl²) + O(Δl³)
-                fll[flat_idx] = 1.0/12.0 * (-35.0 * fH0[sys.idx(s, ip, 0, ik)] 
+                coeffs[flat_idx].fll = 1.0/12.0 * (-35.0 * fH0[sys.idx(s, ip, 0, ik)] 
                             + 104.0 * fH0[sys.idx(s, ip, 1, ik)] 
                             - 114.0 * fH0[sys.idx(s, ip, 2, ik)] 
                             + 56.0 * fH0[sys.idx(s, ip, 3, ik)] 
@@ -163,7 +148,7 @@ void precompute_derivatives_3d(
             } else if (il == Nl - 1) {
                 // right boundary; use backward difference (3nd order) formula:
                 // f''(N) = (35fN - 104f(N-1) + 114f(N-2) - 56f(N-3) + 11f(N-4))/(12Δl²) + O(Δl³)
-                fll[flat_idx] = 1.0/12.0 * (35.0 * fH0[sys.idx(s, ip, Nl-1, ik)] 
+                coeffs[flat_idx].fll = 1.0/12.0 * (35.0 * fH0[sys.idx(s, ip, Nl-1, ik)] 
                             - 104.0 * fH0[sys.idx(s, ip, Nl-2, ik)] 
                             + 114.0 * fH0[sys.idx(s, ip, Nl-3, ik)] 
                             - 56.0 * fH0[sys.idx(s, ip, Nl-4, ik)] 
@@ -173,7 +158,7 @@ void precompute_derivatives_3d(
             } else {
                 // bulk points
                 // Central difference (2nd order)
-                fll[flat_idx] = (fH0[sys.idx(s, ip, il + 1, ik)] 
+                coeffs[flat_idx].fll = (fH0[sys.idx(s, ip, il + 1, ik)] 
                             - 2.0 * fH0[sys.idx(s, ip, il, ik)] 
                             + fH0[sys.idx(s, ip, il - 1, ik)]) * inv_delta_l2;
             }
@@ -182,37 +167,37 @@ void precompute_derivatives_3d(
             // ----------------------------------
 
             // ----- ∂f/∂psi -----
-            if (ip == 0) {
-                // given that f(psi) = f(-psi), use 
-                // f'(0) = 0
-                fp[flat_idx] = 0.0;
+            // if (ip == 0) {
+            //     // given that f(psi) = f(-psi), use 
+            //     // f'(0) = 0
+            //     fp[flat_idx] = 0.0;
                
-            } else if (ip == Npsi - 1) {
-                // the same happens here, since f(pi - x) = f(-x) = f(x - pi)
-                fp[flat_idx] = 0.0;
+            // } else if (ip == Npsi - 1) {
+            //     // the same happens here, since f(pi - x) = f(-x) = f(x - pi)
+            //     fp[flat_idx] = 0.0;
 
-            } else {
-                fp[flat_idx] = (fH0[sys.idx(s, ip + 1, il, ik)] - fH0[sys.idx(s, ip - 1, il, ik)]) * (0.5 * inv_delta_psi);
-            }
+            // } else {
+            //     fp[flat_idx] = (fH0[sys.idx(s, ip + 1, il, ik)] - fH0[sys.idx(s, ip - 1, il, ik)]) * (0.5 * inv_delta_psi);
+            // }
             
-            // ----- ∂²f/∂psi² -----
-            if (ip == 0) {
-                // 
-                fpp[flat_idx] = (2.0 * fH0[sys.idx(s, ip + 1, il, ik)] 
-                            - 2.0 * fH0[sys.idx(s, ip, il, ik)] 
-                            ) * inv_delta_psi * inv_delta_psi;
+            // // ----- ∂²f/∂psi² -----
+            // if (ip == 0) {
+            //     // 
+            //     fpp[flat_idx] = (2.0 * fH0[sys.idx(s, ip + 1, il, ik)] 
+            //                 - 2.0 * fH0[sys.idx(s, ip, il, ik)] 
+            //                 ) * inv_delta_psi * inv_delta_psi;
 
-            } else if (ip == Npsi - 1) {
-                // 
-                fpp[flat_idx] = (- 2.0 * fH0[sys.idx(s, ip, il, ik)] 
-                            + 2.0 * fH0[sys.idx(s, ip - 1, il, ik)]) * inv_delta_psi * inv_delta_psi;
+            // } else if (ip == Npsi - 1) {
+            //     // 
+            //     fpp[flat_idx] = (- 2.0 * fH0[sys.idx(s, ip, il, ik)] 
+            //                 + 2.0 * fH0[sys.idx(s, ip - 1, il, ik)]) * inv_delta_psi * inv_delta_psi;
 
-            } else {
-                // Central difference (2nd order)
-                fpp[flat_idx] = (fH0[sys.idx(s, ip + 1, il, ik)] 
-                            - 2.0 * fH0[sys.idx(s, ip, il, ik)] 
-                            + fH0[sys.idx(s, ip - 1, il, ik)]) * inv_delta_psi * inv_delta_psi;
-            }
+            // } else {
+            //     // Central difference (2nd order)
+            //     fpp[flat_idx] = (fH0[sys.idx(s, ip + 1, il, ik)] 
+            //                 - 2.0 * fH0[sys.idx(s, ip, il, ik)] 
+            //                 + fH0[sys.idx(s, ip - 1, il, ik)]) * inv_delta_psi * inv_delta_psi;
+            // }
             
 
             // ------- MIXED DERIVATIVES -------
@@ -222,197 +207,197 @@ void precompute_derivatives_3d(
             if (il == 0 && ik == 0) {
                 // Both at left boundary: forward-forward (2nd order)
                 // ∂²f/∂l∂k ≈ (f(1,1) - f(1,0) - f(0,1) + f(0,0))/(Δl·Δk)
-                flk[flat_idx] = (fH0[sys.idx(s, ip, 1, 1)] 
+                coeffs[flat_idx].flk = (fH0[sys.idx(s, ip, 1, 1)] 
                             - fH0[sys.idx(s, ip, 1, 0)] 
                             - fH0[sys.idx(s, ip, 0, 1)] 
                             + fH0[sys.idx(s, ip, 0, 0)]) * inv_delta_l * inv_delta_k;
 
             } else if (il == 0 && ik == Nk - 1) {
                 // l at left, k at right: forward-backward (2nd order)
-                flk[flat_idx] = (fH0[sys.idx(s, ip, 1, Nk-1)] 
+                coeffs[flat_idx].flk = (fH0[sys.idx(s, ip, 1, Nk-1)] 
                             - fH0[sys.idx(s, ip, 1, Nk-2)] 
                             - fH0[sys.idx(s, ip, 0, Nk-1)] 
                             + fH0[sys.idx(s, ip, 0, Nk-2)]) * inv_delta_l * inv_delta_k;
 
             } else if (il == Nl - 1 && ik == 0) {
                 // l at right, k at left: backward-forward (2nd order)
-                flk[flat_idx] = (fH0[sys.idx(s, ip, Nl-1, 1)] 
+                coeffs[flat_idx].flk = (fH0[sys.idx(s, ip, Nl-1, 1)] 
                             - fH0[sys.idx(s, ip, Nl-2, 1)] 
                             - fH0[sys.idx(s, ip, Nl-1, 0)] 
                             + fH0[sys.idx(s, ip, Nl-2, 0)]) * inv_delta_l * inv_delta_k;
 
             } else if (il == Nl - 1 && ik == Nk - 1) {
                 // Both at right boundary: backward-backward (2nd order)
-                flk[flat_idx] = (fH0[sys.idx(s, ip, Nl-1, Nk-1)] 
+                coeffs[flat_idx].flk = (fH0[sys.idx(s, ip, Nl-1, Nk-1)] 
                             - fH0[sys.idx(s, ip, Nl-2, Nk-1)] 
                             - fH0[sys.idx(s, ip, Nl-1, Nk-2)] 
                             + fH0[sys.idx(s, ip, Nl-2, Nk-2)]) * inv_delta_l * inv_delta_k;
 
             } else if (il == 0) {
                 // l at left boundary, k in interior: forward in l, central in k
-                flk[flat_idx] = (fH0[sys.idx(s, ip, 1, ik+1)] 
+                coeffs[flat_idx].flk = (fH0[sys.idx(s, ip, 1, ik+1)] 
                             - fH0[sys.idx(s, ip, 1, ik-1)] 
                             - fH0[sys.idx(s, ip, 0, ik+1)] 
                             + fH0[sys.idx(s, ip, 0, ik-1)]) * (0.5 * inv_delta_l * inv_delta_k);
 
             } else if (il == Nl - 1) {
                 // l at right boundary, k in interior: backward in l, central in k
-                flk[flat_idx] = (fH0[sys.idx(s, ip, Nl-1, ik+1)] 
+                coeffs[flat_idx].flk = (fH0[sys.idx(s, ip, Nl-1, ik+1)] 
                             - fH0[sys.idx(s, ip, Nl-1, ik-1)] 
                             - fH0[sys.idx(s, ip, Nl-2, ik+1)] 
                             + fH0[sys.idx(s, ip, Nl-2, ik-1)]) * (0.5 * inv_delta_l * inv_delta_k);
 
             } else if (ik == 0) {
                 // k at left boundary, l in interior: central in l, forward in k
-                flk[flat_idx] = (fH0[sys.idx(s, ip, il+1, 1)] 
+                coeffs[flat_idx].flk = (fH0[sys.idx(s, ip, il+1, 1)] 
                             - fH0[sys.idx(s, ip, il-1, 1)] 
                             - fH0[sys.idx(s, ip, il+1, 0)] 
                             + fH0[sys.idx(s, ip, il-1, 0)]) * (0.5 * inv_delta_l * inv_delta_k);
 
             } else if (ik == Nk - 1) {
                 // k at right boundary, l in interior: central in l, backward in k
-                flk[flat_idx] = (fH0[sys.idx(s, ip, il+1, Nk-1)] 
+                coeffs[flat_idx].flk = (fH0[sys.idx(s, ip, il+1, Nk-1)] 
                             - fH0[sys.idx(s, ip, il-1, Nk-1)] 
                             - fH0[sys.idx(s, ip, il+1, Nk-2)] 
                             + fH0[sys.idx(s, ip, il-1, Nk-2)]) * (0.5 * inv_delta_l * inv_delta_k);
 
             } else {
                 // Both in interior: standard central difference (2nd order)
-                flk[flat_idx] = (fH0[sys.idx(s, ip, il+1, ik+1)] 
+                coeffs[flat_idx].flk = (fH0[sys.idx(s, ip, il+1, ik+1)] 
                             - fH0[sys.idx(s, ip, il-1, ik+1)]
                             - fH0[sys.idx(s, ip, il+1, ik-1)] 
                             + fH0[sys.idx(s, ip, il-1, ik-1)]) * (0.25 * inv_delta_l * inv_delta_k);
             }
             
             // ----- ∂²f/∂ψ∂l -----
-            if (ip == 0 && il == 0) {
-                // Both at left boundary: forward-forward (2nd order)
-                fpl[flat_idx] = (fH0[sys.idx(s, 1, 1, ik)] 
-                            - fH0[sys.idx(s, 1, 0, ik)] 
-                            - fH0[sys.idx(s, 0, 1, ik)] 
-                            + fH0[sys.idx(s, 0, 0, ik)]) * inv_delta_psi * inv_delta_l;
+            // if (ip == 0 && il == 0) {
+            //     // Both at left boundary: forward-forward (2nd order)
+            //     fpl[flat_idx] = (fH0[sys.idx(s, 1, 1, ik)] 
+            //                 - fH0[sys.idx(s, 1, 0, ik)] 
+            //                 - fH0[sys.idx(s, 0, 1, ik)] 
+            //                 + fH0[sys.idx(s, 0, 0, ik)]) * inv_delta_psi * inv_delta_l;
 
-            } else if (ip == 0 && il == Nl - 1) {
-                // p at left, l at right: forward-backward (2nd order)
-                fpl[flat_idx] = (fH0[sys.idx(s, 1, Nl-1, ik)] 
-                            - fH0[sys.idx(s, 1, Nl-2, ik)] 
-                            - fH0[sys.idx(s, 0, Nl-1, ik)] 
-                            + fH0[sys.idx(s, 0, Nl-2, ik)]) * inv_delta_psi * inv_delta_l;
+            // } else if (ip == 0 && il == Nl - 1) {
+            //     // p at left, l at right: forward-backward (2nd order)
+            //     fpl[flat_idx] = (fH0[sys.idx(s, 1, Nl-1, ik)] 
+            //                 - fH0[sys.idx(s, 1, Nl-2, ik)] 
+            //                 - fH0[sys.idx(s, 0, Nl-1, ik)] 
+            //                 + fH0[sys.idx(s, 0, Nl-2, ik)]) * inv_delta_psi * inv_delta_l;
 
-            } else if (ip == Npsi - 1 && il == 0) {
-                // p at right, l at left: backward-forward (2nd order)
-                fpl[flat_idx] = (fH0[sys.idx(s, Npsi-1, 1, ik)] 
-                            - fH0[sys.idx(s, Npsi-2, 1, ik)] 
-                            - fH0[sys.idx(s, Npsi-1, 0, ik)] 
-                            + fH0[sys.idx(s, Npsi-2, 0, ik)]) * inv_delta_psi * inv_delta_l;
+            // } else if (ip == Npsi - 1 && il == 0) {
+            //     // p at right, l at left: backward-forward (2nd order)
+            //     fpl[flat_idx] = (fH0[sys.idx(s, Npsi-1, 1, ik)] 
+            //                 - fH0[sys.idx(s, Npsi-2, 1, ik)] 
+            //                 - fH0[sys.idx(s, Npsi-1, 0, ik)] 
+            //                 + fH0[sys.idx(s, Npsi-2, 0, ik)]) * inv_delta_psi * inv_delta_l;
 
-            } else if (ip == Npsi - 1 && il == Nl - 1) {
-                // Both at right boundary: backward-backward (2nd order)
-                fpl[flat_idx] = (fH0[sys.idx(s, Npsi-1, Nl-1, ik)] 
-                            - fH0[sys.idx(s, Npsi-2, Nl-1, ik)] 
-                            - fH0[sys.idx(s, Npsi-1, Nl-2, ik)] 
-                            + fH0[sys.idx(s, Npsi-2, Nl-2, ik)]) * inv_delta_psi * inv_delta_l;
+            // } else if (ip == Npsi - 1 && il == Nl - 1) {
+            //     // Both at right boundary: backward-backward (2nd order)
+            //     fpl[flat_idx] = (fH0[sys.idx(s, Npsi-1, Nl-1, ik)] 
+            //                 - fH0[sys.idx(s, Npsi-2, Nl-1, ik)] 
+            //                 - fH0[sys.idx(s, Npsi-1, Nl-2, ik)] 
+            //                 + fH0[sys.idx(s, Npsi-2, Nl-2, ik)]) * inv_delta_psi * inv_delta_l;
 
-            } else if (ip == 0) {
-                // p at left boundary, l in interior: forward in p, central in l
-                fpl[flat_idx] = (fH0[sys.idx(s, 1, il+1, ik)] 
-                            - fH0[sys.idx(s, 1, il-1, ik)] 
-                            - fH0[sys.idx(s, 0, il+1, ik)] 
-                            + fH0[sys.idx(s, 0, il-1, ik)]) * (0.5 * inv_delta_psi * inv_delta_l);
+            // } else if (ip == 0) {
+            //     // p at left boundary, l in interior: forward in p, central in l
+            //     fpl[flat_idx] = (fH0[sys.idx(s, 1, il+1, ik)] 
+            //                 - fH0[sys.idx(s, 1, il-1, ik)] 
+            //                 - fH0[sys.idx(s, 0, il+1, ik)] 
+            //                 + fH0[sys.idx(s, 0, il-1, ik)]) * (0.5 * inv_delta_psi * inv_delta_l);
 
-            } else if (ip == Npsi - 1) {
-                // p at right boundary, l in interior: backward in p, central in l
-                fpl[flat_idx] = (fH0[sys.idx(s, Npsi-1, il+1, ik)] 
-                            - fH0[sys.idx(s, Npsi-1, il-1, ik)] 
-                            - fH0[sys.idx(s, Npsi-2, il+1, ik)] 
-                            + fH0[sys.idx(s, Npsi-2, il-1, ik)]) * (0.5 * inv_delta_psi * inv_delta_l);
+            // } else if (ip == Npsi - 1) {
+            //     // p at right boundary, l in interior: backward in p, central in l
+            //     fpl[flat_idx] = (fH0[sys.idx(s, Npsi-1, il+1, ik)] 
+            //                 - fH0[sys.idx(s, Npsi-1, il-1, ik)] 
+            //                 - fH0[sys.idx(s, Npsi-2, il+1, ik)] 
+            //                 + fH0[sys.idx(s, Npsi-2, il-1, ik)]) * (0.5 * inv_delta_psi * inv_delta_l);
 
-            } else if (il == 0) {
-                // l at left boundary, p in interior: central in p, forward in l
-                fpl[flat_idx] = (fH0[sys.idx(s, ip+1, 1, ik)] 
-                            - fH0[sys.idx(s, ip-1, 1, ik)] 
-                            - fH0[sys.idx(s, ip+1, 0, ik)] 
-                            + fH0[sys.idx(s, ip-1, 0, ik)]) * (0.5 * inv_delta_psi * inv_delta_l);
+            // } else if (il == 0) {
+            //     // l at left boundary, p in interior: central in p, forward in l
+            //     fpl[flat_idx] = (fH0[sys.idx(s, ip+1, 1, ik)] 
+            //                 - fH0[sys.idx(s, ip-1, 1, ik)] 
+            //                 - fH0[sys.idx(s, ip+1, 0, ik)] 
+            //                 + fH0[sys.idx(s, ip-1, 0, ik)]) * (0.5 * inv_delta_psi * inv_delta_l);
 
-            } else if (il == Nl - 1) {
-                // l at right boundary, p in interior: central in p, backward in l
-                fpl[flat_idx] = (fH0[sys.idx(s, ip+1, Nl-1, ik)] 
-                            - fH0[sys.idx(s, ip-1, Nl-1, ik)] 
-                            - fH0[sys.idx(s, ip+1, Nl-2, ik)] 
-                            + fH0[sys.idx(s, ip-1, Nl-2, ik)]) * (0.5 * inv_delta_psi * inv_delta_l);
+            // } else if (il == Nl - 1) {
+            //     // l at right boundary, p in interior: central in p, backward in l
+            //     fpl[flat_idx] = (fH0[sys.idx(s, ip+1, Nl-1, ik)] 
+            //                 - fH0[sys.idx(s, ip-1, Nl-1, ik)] 
+            //                 - fH0[sys.idx(s, ip+1, Nl-2, ik)] 
+            //                 + fH0[sys.idx(s, ip-1, Nl-2, ik)]) * (0.5 * inv_delta_psi * inv_delta_l);
 
-            } else {
-                // Both in interior: standard central difference (2nd order)
-                fpl[flat_idx] = (fH0[sys.idx(s, ip+1, il+1, ik)] 
-                            - fH0[sys.idx(s, ip-1, il+1, ik)]
-                            - fH0[sys.idx(s, ip+1, il-1, ik)] 
-                            + fH0[sys.idx(s, ip-1, il-1, ik)]) * (0.25 * inv_delta_psi * inv_delta_l);
-            }
+            // } else {
+            //     // Both in interior: standard central difference (2nd order)
+            //     fpl[flat_idx] = (fH0[sys.idx(s, ip+1, il+1, ik)] 
+            //                 - fH0[sys.idx(s, ip-1, il+1, ik)]
+            //                 - fH0[sys.idx(s, ip+1, il-1, ik)] 
+            //                 + fH0[sys.idx(s, ip-1, il-1, ik)]) * (0.25 * inv_delta_psi * inv_delta_l);
+            // }
             
-            // ----- ∂²f/∂ψ∂k -----
-            if (ip == 0 && ik == 0) {
-                // Both at left boundary: forward-forward (2nd order)
-                fpk[flat_idx] = (fH0[sys.idx(s, 1, il, 1)] 
-                            - fH0[sys.idx(s, 1, il, 0)] 
-                            - fH0[sys.idx(s, 0, il, 1)] 
-                            + fH0[sys.idx(s, 0, il, 0)]) * inv_delta_psi * inv_delta_k;
+            // // ----- ∂²f/∂ψ∂k -----
+            // if (ip == 0 && ik == 0) {
+            //     // Both at left boundary: forward-forward (2nd order)
+            //     fpk[flat_idx] = (fH0[sys.idx(s, 1, il, 1)] 
+            //                 - fH0[sys.idx(s, 1, il, 0)] 
+            //                 - fH0[sys.idx(s, 0, il, 1)] 
+            //                 + fH0[sys.idx(s, 0, il, 0)]) * inv_delta_psi * inv_delta_k;
 
-            } else if (ip == 0 && ik == Nk - 1) {
-                // p at left, k at right: forward-backward (2nd order)
-                fpk[flat_idx] = (fH0[sys.idx(s, 1, il, Nk-1)] 
-                            - fH0[sys.idx(s, 1, il, Nk-2)] 
-                            - fH0[sys.idx(s, 0, il, Nk-1)] 
-                            + fH0[sys.idx(s, 0, il, Nk-2)]) * inv_delta_psi * inv_delta_k;
+            // } else if (ip == 0 && ik == Nk - 1) {
+            //     // p at left, k at right: forward-backward (2nd order)
+            //     fpk[flat_idx] = (fH0[sys.idx(s, 1, il, Nk-1)] 
+            //                 - fH0[sys.idx(s, 1, il, Nk-2)] 
+            //                 - fH0[sys.idx(s, 0, il, Nk-1)] 
+            //                 + fH0[sys.idx(s, 0, il, Nk-2)]) * inv_delta_psi * inv_delta_k;
 
-            } else if (ip == Npsi - 1 && ik == 0) {
-                // p at right, k at left: backward-forward (2nd order)
-                fpk[flat_idx] = (fH0[sys.idx(s, Npsi-1, il, 1)] 
-                            - fH0[sys.idx(s, Npsi-2, il, 1)] 
-                            - fH0[sys.idx(s, Npsi-1, il, 0)] 
-                            + fH0[sys.idx(s, Npsi-2, il, 0)]) * inv_delta_psi * inv_delta_k;
+            // } else if (ip == Npsi - 1 && ik == 0) {
+            //     // p at right, k at left: backward-forward (2nd order)
+            //     fpk[flat_idx] = (fH0[sys.idx(s, Npsi-1, il, 1)] 
+            //                 - fH0[sys.idx(s, Npsi-2, il, 1)] 
+            //                 - fH0[sys.idx(s, Npsi-1, il, 0)] 
+            //                 + fH0[sys.idx(s, Npsi-2, il, 0)]) * inv_delta_psi * inv_delta_k;
 
-            } else if (ip == Npsi - 1 && ik == Nk - 1) {
-                // Both at right boundary: backward-backward (2nd order)
-                fpk[flat_idx] = (fH0[sys.idx(s, Npsi-1, il, Nk-1)] 
-                            - fH0[sys.idx(s, Npsi-2, il, Nk-1)] 
-                            - fH0[sys.idx(s, Npsi-1, il, Nk-2)] 
-                            + fH0[sys.idx(s, Npsi-2, il, Nk-2)]) * inv_delta_psi * inv_delta_k;
+            // } else if (ip == Npsi - 1 && ik == Nk - 1) {
+            //     // Both at right boundary: backward-backward (2nd order)
+            //     fpk[flat_idx] = (fH0[sys.idx(s, Npsi-1, il, Nk-1)] 
+            //                 - fH0[sys.idx(s, Npsi-2, il, Nk-1)] 
+            //                 - fH0[sys.idx(s, Npsi-1, il, Nk-2)] 
+            //                 + fH0[sys.idx(s, Npsi-2, il, Nk-2)]) * inv_delta_psi * inv_delta_k;
 
-            } else if (ip == 0) {
-                // p at left boundary, k in interior: forward in p, central in k
-                fpk[flat_idx] = (fH0[sys.idx(s, 1, il, ik+1)] 
-                            - fH0[sys.idx(s, 1, il, ik-1)] 
-                            - fH0[sys.idx(s, 0, il, ik+1)] 
-                            + fH0[sys.idx(s, 0, il, ik-1)]) * (0.5 * inv_delta_psi * inv_delta_k);
+            // } else if (ip == 0) {
+            //     // p at left boundary, k in interior: forward in p, central in k
+            //     fpk[flat_idx] = (fH0[sys.idx(s, 1, il, ik+1)] 
+            //                 - fH0[sys.idx(s, 1, il, ik-1)] 
+            //                 - fH0[sys.idx(s, 0, il, ik+1)] 
+            //                 + fH0[sys.idx(s, 0, il, ik-1)]) * (0.5 * inv_delta_psi * inv_delta_k);
 
-            } else if (ip == Npsi - 1) {
-                // p at right boundary, k in interior: backward in p, central in k
-                fpk[flat_idx] = (fH0[sys.idx(s, Npsi-1, il, ik+1)] 
-                            - fH0[sys.idx(s, Npsi-1, il, ik-1)] 
-                            - fH0[sys.idx(s, Npsi-2, il, ik+1)] 
-                            + fH0[sys.idx(s, Npsi-2, il, ik-1)]) * (0.5 * inv_delta_psi * inv_delta_k);
+            // } else if (ip == Npsi - 1) {
+            //     // p at right boundary, k in interior: backward in p, central in k
+            //     fpk[flat_idx] = (fH0[sys.idx(s, Npsi-1, il, ik+1)] 
+            //                 - fH0[sys.idx(s, Npsi-1, il, ik-1)] 
+            //                 - fH0[sys.idx(s, Npsi-2, il, ik+1)] 
+            //                 + fH0[sys.idx(s, Npsi-2, il, ik-1)]) * (0.5 * inv_delta_psi * inv_delta_k);
 
-            } else if (ik == 0) {
-                // k at left boundary, p in interior: central in p, forward in k
-                fpk[flat_idx] = (fH0[sys.idx(s, ip+1, il, 1)] 
-                            - fH0[sys.idx(s, ip-1, il, 1)] 
-                            - fH0[sys.idx(s, ip+1, il, 0)] 
-                            + fH0[sys.idx(s, ip-1, il, 0)]) * (0.5 * inv_delta_psi * inv_delta_k);
+            // } else if (ik == 0) {
+            //     // k at left boundary, p in interior: central in p, forward in k
+            //     fpk[flat_idx] = (fH0[sys.idx(s, ip+1, il, 1)] 
+            //                 - fH0[sys.idx(s, ip-1, il, 1)] 
+            //                 - fH0[sys.idx(s, ip+1, il, 0)] 
+            //                 + fH0[sys.idx(s, ip-1, il, 0)]) * (0.5 * inv_delta_psi * inv_delta_k);
 
-            } else if (ik == Nk - 1) {
-                // k at right boundary, p in interior: central in p, backward in k
-                fpk[flat_idx] = (fH0[sys.idx(s, ip+1, il, Nk-1)] 
-                            - fH0[sys.idx(s, ip-1, il, Nk-1)] 
-                            - fH0[sys.idx(s, ip+1, il, Nk-2)] 
-                            + fH0[sys.idx(s, ip-1, il, Nk-2)]) * (0.5 * inv_delta_psi * inv_delta_k);
+            // } else if (ik == Nk - 1) {
+            //     // k at right boundary, p in interior: central in p, backward in k
+            //     fpk[flat_idx] = (fH0[sys.idx(s, ip+1, il, Nk-1)] 
+            //                 - fH0[sys.idx(s, ip-1, il, Nk-1)] 
+            //                 - fH0[sys.idx(s, ip+1, il, Nk-2)] 
+            //                 + fH0[sys.idx(s, ip-1, il, Nk-2)]) * (0.5 * inv_delta_psi * inv_delta_k);
 
-            } else {
-                // Both in interior: standard central difference (2nd order)
-                fpk[flat_idx] = (fH0[sys.idx(s, ip+1, il, ik+1)] 
-                            - fH0[sys.idx(s, ip-1, il, ik+1)]
-                            - fH0[sys.idx(s, ip+1, il, ik-1)] 
-                            + fH0[sys.idx(s, ip-1, il, ik-1)]) * (0.25 * inv_delta_psi * inv_delta_k);
-            }
+            // } else {
+            //     // Both in interior: standard central difference (2nd order)
+            //     fpk[flat_idx] = (fH0[sys.idx(s, ip+1, il, ik+1)] 
+            //                 - fH0[sys.idx(s, ip-1, il, ik+1)]
+            //                 - fH0[sys.idx(s, ip+1, il, ik-1)] 
+            //                 + fH0[sys.idx(s, ip-1, il, ik-1)]) * (0.25 * inv_delta_psi * inv_delta_k);
+            // }
         }
     }}}
 }

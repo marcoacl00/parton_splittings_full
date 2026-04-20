@@ -5,19 +5,23 @@
 
 using namespace std;
 
+struct InterpCoeffs {
+    dcomplex f;
+    dcomplex fk;
+    dcomplex fl;
+    dcomplex fkk;
+    dcomplex fll;
+    dcomplex flk;
+};
+
+
 void precompute_derivatives_3d(
     const Physis& sys,
     const std::vector<dcomplex>& fH0,
-    std::vector<dcomplex>& fk,
-    std::vector<dcomplex>& fkk,
-    std::vector<dcomplex>& fl,
-    std::vector<dcomplex>& fll,
-    std::vector<dcomplex>& fp,
-    std::vector<dcomplex>& fpp,
-    std::vector<dcomplex>& flk,
-    std::vector<dcomplex>& fpl,
-    std::vector<dcomplex>& fpk
+    vector<InterpCoeffs>& coeffs
 );
+
+
 
 
 #endif
