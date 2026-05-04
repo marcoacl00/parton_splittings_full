@@ -45,6 +45,7 @@ void precompute_derivatives_3d(
 
             // note that for the boundary corrections, the function has by construction more than 3 points in each direction,
             // (and more than 5 for l) so we can always apply the 3-point formulas without worrying about out-of-bounds access.
+            coeffs[flat_idx].f = fH0[flat_idx];  
 
 
             // ==============================

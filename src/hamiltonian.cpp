@@ -200,7 +200,7 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
     double a1 = 0.0;
     double b1 = split; 
     double a2 = split;
-    double b2 = 12.0*mu;
+    double b2 = 5.0*mu;
 
     double mid1 = 0.5 * (b1 + a1);
     double half1 = 0.5 * (b1 - a1);
@@ -255,9 +255,10 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
  
     vector <InterpCoeffs> der_coeffs;
 
+
     precompute_derivatives_3d(sys, fH0, der_coeffs);
  
-    dcomplex prefac = -4.0 * dcomplex(0, 1) * qtilde / (2.0 * PI);
+    dcomplex prefac = -2.0 * dcomplex(0, 1) * qtilde / (PI);
  
     // ==================================================================
     // Build the sampling mask from the M-matrix formulas.
@@ -436,7 +437,7 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
         double angle_k_1zp_l = angle_from_cos(
             k*cos_psi - 2.0*one_z*p*cos_theta_minus_psi, R_k_1zp);
  
-        samples[0] = get_fval(angle_pmk_lmp,    Rp_m_k,       Rp_m_l, mask[0]);
+        samples[0] = get_fval(angle_pmk_lmp,    Rp_m_k,       Rp_m_l, mask[0]); 
         samples[1] = get_fval(angle_ppk_lmp,    Rp_p_k,       Rp_m_l, mask[1]);
         samples[2] = get_fval(angle_k_m_2z_p,   R_k_m_2z_p,   Rp_m_l, mask[2]);
         samples[3] = get_fval(angle_k_m_2_1z_p, R_k_m_2_1z_p, Rp_m_l, mask[3]);
@@ -455,6 +456,7 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
         out[0] = 2.0*CF * Sig0[0];
         out[1] = CA * (Sig0[0] - Sigzsc[0])
                + 2.0*CF * (Sigp[1] + Sigm[1]);
+               
         if (!is_large_Nc) {
             out[0] += (1.0/CA) * (Sigzsc[0] - Sigp[0] - Sigm[0])
                     - (1.0/CA) * (Sigzsc[1] - Sigp[1] - Sigm[1]);
