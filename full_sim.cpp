@@ -20,15 +20,14 @@ const dcomplex I(0.0, 1.0);
 int main(int argc, char* argv[]) {
 
     // physics parameters
-    double E  = 200.0;
-    double z = 0.4;
+    double E  = 100.0;
+    double z = 0.5;
     double qtilde = 1.5;
-    double Lp =  2.0 * E * z * (1 - z);
+    double Lp =  3.0 * E * z * (1 - z);
     double Lk =  0.5 * Lp;
     double Ll =  0.25 * Lk;
-    double mu = 0.3;
-    // q->qg: the less soft it gets, the more is necessary to increase both Nl, Ll and Npsi
-    // for the g->gg this is not the case, which sucks
+    double mu = 0.18;
+    // the less soft it gets, the more is necessary to increase both Nl, Ll and Npsi. for soft limit one can get away with very small values
     int Nk = 80;
     int Nl = 60; 
     int Npsi = 5;
@@ -99,7 +98,7 @@ int main(int argc, char* argv[]) {
     
 
     // maximum time (medium length)
-    double t_L = 0.1;
+    double t_L = 4;
 
     // time step
     

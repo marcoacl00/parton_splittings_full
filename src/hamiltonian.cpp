@@ -184,7 +184,7 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
     // map Gauss-Legendre nodes from [-1,1] to integration domains
     // For radial: [pmin, pmax]
     double sp = mu;
-    double split =  (mode == 2) ? 4.0 * mu : 10.0 * mu;
+    double split =  (mode == 2) ? 5.0 * mu : 10.0 * mu;
 
     vector<double> p1_nodes, p1_weights; // region [pmin, split]
     vector<double> p2_nodes, p2_weights; // region [split, pmax]
@@ -517,7 +517,7 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
                         f_here[s] = fH0[sys.idx(s, ip, il, ik)];
  
                     // kinetic term
-                    double kinetic = (k * l) / omega * cos_psi;
+                    double kinetic = 2.0 * (k * l) / omega * cos_psi;
                     for (int s = 0; s < Nsig; ++s)
                         HF[sys.idx(s, ip, il, ik)] = kinetic * f_here[s];
  
