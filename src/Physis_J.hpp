@@ -7,8 +7,10 @@
 #include <bits/stdc++.h>
 #include <complex>
 #include <chrono>
+#include "spline.h"
 
 using dcomplex = std::complex<double>;
+
 
 class Physis_J {
 private:

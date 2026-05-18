@@ -14,25 +14,24 @@ double VHTL(double q, double mu)
 {
     // yukawa potential (extra q factor due to polar coordinates jacobian) q / pow((q*q + mu*mu), 2)
     // htl 1 / (q*(q*q + (inv_sqrt_e * mu)*(inv_sqrt_e * mu)))
-    return  1 / (PI) * 1 / (q*(q*q + (e * mu*mu))); //q / pow((q*q + mu*mu), 2); 
+    return  1/PI * 1 / (q*(q*q + (e * mu*mu))); //q / pow((q*q + mu*mu), 2); 
 }
 
-double VHO(double q, double mu)
-{   double eps = mu;
-    double exp = std::exp(-q*q / (2 * eps*eps));
-    double fac = 0.25 * 1.0 / (2.0 * PI *pow(eps, 4)) * (q*q*q / (eps*eps)  - 2.0 * q);
+double VHO(double q, double mu) { 
+    double eps = mu; 
+    double x = q / eps;
+    double exp = std::exp(-x*x / 2.0);
+    double fac = 0.25 * 1.0 / (2.0 * PI * pow(eps, 3)) * (x*x*x - 2.0 * x); 
 
-
-    return exp * fac;
-}
+    return exp * fac; }
 
 double VYUK(double q, double mu)
-{   double eps = mu;
+{   
     // yukawa potential (extra q factor due to polar coordinates jacobian) q / pow((q*q + mu*mu), 2)
     // htl 1 / (q*(q*q + (inv_sqrt_e * mu)*(inv_sqrt_e * mu)))
  
 
-    return  1 / (PI) * q / pow((q*q + mu*mu), 2);
+    return  1/PI * q / pow((q*q + mu*mu), 2);
 }
 
 double factorial(int r)
@@ -68,6 +67,7 @@ double compute_f_r_pc(
             return VHTL(p, mu);}
             else{return VHO(p, mu);}
         };
+
 
 
 
@@ -193,45 +193,132 @@ static void precompute_derivatives(
     const Physis_J& sys,
     const std::vector<dcomplex>& fH0,
     std::vector<dcomplex>& fx,
-    std::vector<dcomplex>& fxx)  
+    std::vector<dcomplex>& fxx)
     {
-
-    int Np = sys.Np();
-    double delta_p = sys.Lp() / (Np - 1);
-    double inv2 = 1.0 / (2.0 * delta_p);
-    double inv2sq = 1.0 / (delta_p * delta_p);
-
-    // allocate vectors sized as fH0
-    fx.assign(fH0.size(), dcomplex(0.0,0.0));
-    fxx.assign(fH0.size(), dcomplex(0.0,0.0));
-
-
-    // compute central differences; handle edges with one-sided
-    #pragma omp parallel for 
+        const int Np = sys.Np();
+        const double delta_p = sys.Lp() / (Np - 1);
+        const double inv2    = 1.0 / (2.0 * delta_p);
+        const double inv2sq  = 1.0 / (delta_p * delta_p);
+        
+        // Check if the first grid point is at p = 0 (radial symmetry applies)
+        const bool grid_at_origin = (std::abs(sys.P().front()) < 1e-14);
+        
+        fx.assign(fH0.size(), dcomplex(0.0, 0.0));
+        fxx.assign(fH0.size(), dcomplex(0.0, 0.0));
+        
+        #pragma omp parallel for
         for (int ix = 0; ix < Np; ++ix) {
-
-            // fx: d/dx (along ix)
             if (ix > 0 && ix < Np - 1) {
-                fx[ix] = ( fH0[ ix+1 ] - fH0[ ix-1 ] ) * inv2;
-                fxx[ix] = ( fH0[ ix+1 ] - 2.0 * fH0[ix] + fH0[ ix-1 ] ) * inv2sq;
-
-            } else if (ix == 0) {
-                // forward difference for fx, second derivative via forward formula
-                fx[ix] = ( fH0[ ix+1 ] - fH0[ix] ) / delta_p;
-                if (Np > 2)
-                    fxx[ix] = ( fH0[ ix+2 ] - 2.0 * fH0[ ix+1 ] + fH0[ix] ) * inv2sq;
-                else fxx[ix] = dcomplex(0.0,0.0);
-            } else { // ix == Np-1
-                fx[ix] = ( fH0[ix] - fH0[ ix-1 ] ) / delta_p;
-                if (Np > 2)
-                    fxx[ix] = ( fH0[ix] - 2.0 * fH0[ ix-1 ] + fH0[ ix-2 ] ) * inv2sq;
-                else fxx[ix] = dcomplex(0.0,0.0);
+                // Interior: 3-point central, O(Δp²)
+                fx[ix]  = ( fH0[ix+1] - fH0[ix-1] ) * inv2;
+                fxx[ix] = ( fH0[ix+1] - 2.0*fH0[ix] + fH0[ix-1] ) * inv2sq;
             }
-
+            else if (ix == 0) {
+                if (grid_at_origin) {
+                    // Radial symmetry: f'(0) = 0, mirror gives O(Δp²) second derivative
+                    fx[ix]  = dcomplex(0.0, 0.0);
+                    if (Np >= 2)
+                        fxx[ix] = 2.0 * ( fH0[1] - fH0[0] ) * inv2sq;
+                    else
+                        fxx[ix] = dcomplex(0.0, 0.0);
+                } else {
+                    // No symmetry: 3-point one-sided, O(Δp²)
+                    if (Np >= 3) {
+                        fx[ix]  = ( -3.0*fH0[0] + 4.0*fH0[1] - fH0[2] ) * inv2;
+                        if (Np >= 4)
+                            fxx[ix] = ( 2.0*fH0[0] - 5.0*fH0[1] + 4.0*fH0[2] - fH0[3] ) * inv2sq;
+                        else
+                            fxx[ix] = ( fH0[0] - 2.0*fH0[1] + fH0[2] ) * inv2sq;  // O(Δp)
+                    } else {
+                        fx[ix]  = ( fH0[1] - fH0[0] ) / delta_p;
+                        fxx[ix] = dcomplex(0.0, 0.0);
+                    }
+                }
+            }
+            else { // ix == Np - 1
+                if (Np >= 3) {
+                    fx[ix]  = ( 3.0*fH0[Np-1] - 4.0*fH0[Np-2] + fH0[Np-3] ) * inv2;
+                    if (Np >= 4)
+                        fxx[ix] = ( 2.0*fH0[Np-1] - 5.0*fH0[Np-2] + 4.0*fH0[Np-3] - fH0[Np-4] ) * inv2sq;
+                    else
+                        fxx[ix] = ( fH0[Np-1] - 2.0*fH0[Np-2] + fH0[Np-3] ) * inv2sq;  // O(Δp)
+                } else {
+                    fx[ix]  = ( fH0[Np-1] - fH0[Np-2] ) / delta_p;
+                    fxx[ix] = dcomplex(0.0, 0.0);
+                }
+            }
         }
     }
 
 // Gauss-Legendre Quadrature struct
+
+
+struct GaussLaguerre {
+    vector<double> nodes;
+    vector<double> weights;
+    
+    GaussLaguerre(int n) {
+        compute_gauss_laguerre(n, nodes, weights);
+    }
+    
+private:
+    void compute_gauss_laguerre(int n, vector<double>& x, vector<double>& w) {
+        x.resize(n);
+        w.resize(n);
+        
+        // Newton iteration on Laguerre polynomial roots
+        for (int i = 0; i < n; ++i) {
+            // Initial guess (Stroud & Secrest)
+            double z;
+            if (i == 0) {
+                z = 3.0 / (1.0 + 2.4 * n);
+            } else if (i == 1) {
+                z = x[0] + 15.0 / (1.0 + 2.5 * n);
+            } else {
+                double ai = i - 1;
+                z = x[i-1] + (1.0 + 2.55*ai)/(1.9*ai) * (x[i-1] - x[i-2]);
+            }
+            
+            // Newton iteration
+            for (int iter = 0; iter < 50; ++iter) {
+                // Evaluate L_n(z) and L_{n-1}(z) using recurrence
+                double L1 = 1.0;      // L_0
+                double L0 = 1.0 - z;  // L_1
+                for (int k = 1; k < n; ++k) {
+                    double Lk = ((2.0*k + 1.0 - z)*L0 - k*L1) / (k + 1.0);
+                    L1 = L0;
+                    L0 = Lk;
+                }
+                // L0 = L_n(z), L1 = L_{n-1}(z)
+                // Derivative: n*(L_n - L_{n-1}) / (... ) ; use:
+                //   L_n'(z) = (n*L_n(z) - n*L_{n-1}(z)) / z
+                double Lp = n * (L0 - L1) / z;
+                
+                double z1 = z;
+                z = z1 - L0 / Lp;
+                
+                if (std::abs(z - z1) < 1e-14 * z) break;
+            }
+            
+            x[i] = z;
+            
+            // Weight: w_i = 1 / (z · [L_n'(z)]²) · (n!)² / n   — simplified:
+            //   w_i = z / ((n+1)² · [L_{n+1}(z)]²)
+            // Compute L_{n+1}(z) using one more recurrence step:
+            double L1 = 1.0;
+            double L0 = 1.0 - z;
+            for (int k = 1; k <= n; ++k) {
+                double Lk = ((2.0*k + 1.0 - z)*L0 - k*L1) / (k + 1.0);
+                L1 = L0;
+                L0 = Lk;
+            }
+            // Now L0 = L_{n+1}(z)
+            w[i] = z / ((n + 1.0) * (n + 1.0) * L0 * L0);
+        }
+    }
+};
+
+
 struct GaussLegendre {
     vector<double> nodes;
     vector<double> weights;
@@ -275,8 +362,8 @@ private:
 };
 
 // Global precomputed Gauss-Legendre quadrature points (initialize once)
-static const GaussLegendre GL_RADIAL(4);  // 12-point for radial integration
-static const GaussLegendre GL_ANGULAR(8); // 32-point for angular integration
+static const GaussLegendre GL_RADIAL(30);  // 12-point for radial integration
+static const GaussLegendre GL_ANGULAR(40); // 32-point for angular integration
 
 
 vector<dcomplex> Hamiltonian_J(const Physis_J& sys, 
@@ -308,7 +395,7 @@ vector<dcomplex> Hamiltonian_J(const Physis_J& sys,
     precompute_derivatives(sys, fH0, fx, fxx);
 
     // Integration parameters
-    const double pmin = sys.pmin(); 
+    double pmin = sys.pmin(); 
     double pmax = sys.pmax();
 
     // Function pointer for potential
@@ -340,14 +427,10 @@ vector<dcomplex> Hamiltonian_J(const Physis_J& sys,
         throw runtime_error("Insert a valid vertex");
     }
     
-    // Adjust pmax if needed
-    const bool do_integration = (pmin < Pgrid_back);
-    if (do_integration && pmax > Pgrid_back) {
-        pmax = Pgrid_back;
-    }
+
     
     // Split domain parameters
-    const double split = 4.0 * mu;
+    const double split = 1.4142;
     
     // (A)symmetric factor for q_qg/g_gg vertices
     const double asym_fac = (vertex == "q_qg") ? 2.0 * CF / CA - 1.0 : 1.0;
@@ -358,6 +441,8 @@ vector<dcomplex> Hamiltonian_J(const Physis_J& sys,
     // Gauss-Legendre quadrature setup
     const int n_radial = GL_RADIAL.nodes.size();
     const int n_angular = GL_ANGULAR.nodes.size();
+
+
     
     // Map Gauss-Legendre nodes from [-1,1] to integration domains
     // For radial: two regions [pmin, split] and [split, pmax]
@@ -391,17 +476,31 @@ vector<dcomplex> Hamiltonian_J(const Physis_J& sys,
     }
 
 
+
     // lambda function for interpolation
     auto sample_f = [&](double x) -> dcomplex {
         if (x <= Pgrid_front) return fH0.front();
-        if (x >= Pgrid_back) return fH0.back();
-        
-        int j = int((x - Pgrid_front) * inv_dx);
-        j = std::min(std::max(j, 0), Np - 2);
-        
-        double t = (x - Pgrid[j]) * inv_dx;
-        return fH0[j] * (1.0 - t) + fH0[j + 1] * t;
+        if (x >= Pgrid_back)  return fH0.back();
+
+        const double xn = (x - Pgrid_front) * inv_dx;
+        int j = static_cast<int>(xn + 0.5);   // nearest grid point
+        if (j < 0)         j = 0;
+        if (j > Np - 1)    j = Np - 1;
+
+        const double h = x - Pgrid[j];        // signed, |h| ≤ dx/2
+
+        return fH0[j] + h * fx[j] + 0.5 * h*h * fxx[j];
     };
+    // allocate and fill real/imag arrays for spline construction
+    std::vector<double> f_real(Np), f_imag(Np);
+    
+    for (int i = 0; i < Np; ++i) {
+        f_real[i] = std::real(fH0[i]);
+        f_imag[i] = std::imag(fH0[i]);   
+    }
+
+    tk::spline j_r(Pgrid, f_real);
+    tk::spline j_i(Pgrid, f_imag);
 
     #pragma omp parallel for schedule(dynamic, 8) if(Np > 64)
     for (int ix = 0; ix < Np; ++ix) {
@@ -418,139 +517,116 @@ vector<dcomplex> Hamiltonian_J(const Physis_J& sys,
                             + taylor_coeffs_2[ix] * fxx[ix];
         
         const dcomplex vterm = taylor_back * fH0[ix] - conv;
+        //const dcomplex vterm = 0;
         HF[ix] += -I * qtilde * C * vterm;
 
         // Integration contribution
-        if (!do_integration || pmin >= pmax) continue;
 
         const dcomplex f = fH0[ix];
         dcomplex sum_corr(0.0, 0.0);
 
+        if (ix == 0) continue;
+
+
         if (is_gamma_qq) {
-            // Gauss-Legendre integration over two radial regions
+            const int N_p = 161;       // radial points (must be odd)
             
-            // Region 1: [pmin, split]
-            for (int i = 0; i < n_radial; ++i) {
-                const double pt = pt1_nodes[i];
+            
+            auto simpson_weight = [](int i, int N) -> double {
+                if (i == 0 || i == N - 1) return 1.0;
+                return (i % 2 == 1) ? 4.0 : 2.0;
+            };
+
+            // Identify which radial node (if any) coincides with the external p.
+            // Pgrid is uniform with spacing h_p1 starting at pmin, so node i is at pmin + i*h_p1.
+            double h_p1 = (pmax - pmin) / (N_p - 1);
+            const double pp_diag_real = (p - pmin) / h_p1;
+            
+            // Region 1: [pmin, pmax]  — skip i == i_diag if present
+            for (int i = 0; i < N_p; ++i) {
+
+
+                const double pt = pmin + i * h_p1;
                 const double pt_sq = pt * pt;
                 const double Vval = V_func(pt, mu);
-                const double w_p = pt1_weights[i];
-                
+                const double w_r = simpson_weight(i, N_p);
+                const double radial_weight = (w_r * h_p1 / 3.0);
+
                 for (int j = 0; j < n_angular; ++j) {
                     const double cos_t = cos_theta[j];
                     const double w_th = theta_weights[j];
-                    
                     const double Rval = std::sqrt(p_sq + pt_sq - 2.0 * p * pt * cos_t);
-                    if (fabs(Rval) < 1e-8) continue;
-                    
+                    if (Rval == 0.0) continue;
                     const dcomplex fpt = sample_f(Rval);
-                    const double ang_kernel = (1.0 / Rval) * (p - pt * cos_t);
-                    sum_corr += Vval * ang_kernel * (f - fpt) * w_p * w_th;
+                    const double ang_kernel = (p - pt * cos_t);
+                    dcomplex integ_corr = Vval * ang_kernel * (f - fpt) * radial_weight * w_th;
+                    sum_corr += 1/p * integ_corr;
                 }
             }
 
-            // Region 2: [split, pmax]
-            for (int i = 0; i < n_radial; ++i) {
-                const double pt = pt2_nodes[i];
-                const double pt_sq = pt * pt;
-                const double Vval = V_func(pt, mu);
-                const double w_p = pt2_weights[i];
-                
-                for (int j = 0; j < n_angular; ++j) {
-                    const double cos_t = cos_theta[j];
-                    const double w_th = theta_weights[j];
-                    
-                    const double Rval = std::sqrt(p_sq + pt_sq - 2.0 * p * pt * cos_t);
-                    if (fabs(Rval) < 1e-8) continue;
-                    
-                    const dcomplex fpt = sample_f(Rval);
-                    const double ang_kernel = (1.0 / Rval) * (p - pt * cos_t);
-                    sum_corr += Vval * ang_kernel * (f - fpt) * w_p * w_th;
-                }
-            }
 
-            HF[ix] += -I * qtilde * CF * sum_corr;
-            
+            HF[ix] += -I * qtilde * C * sum_corr;
+
         } else { // q_qg or g_gg
-            
-            // Region 1: [pmin, split]
-            for (int i = 0; i < n_radial; ++i) {
-                const double pt = pt1_nodes[i];
-                const double pt_sq = pt * pt;
-                const double Vval = V_func(pt, mu);
-                const double w_p = pt1_weights[i];
-                
-                for (int j = 0; j < n_angular; ++j) {
-                    const double cos_t = cos_theta[j];
-                    const double w_th = theta_weights[j];
-                    const double w_total = w_p * w_th;
-                    
-                    // g(z) = 1
-                    double Rval = std::sqrt(p_sq + pt_sq - 2.0 * p * pt * cos_t);
-                    if (Rval > 0.0) {
-                        const dcomplex fpt = sample_f(Rval);
-                        const double ang_kernel = (1.0 / Rval) * (p - pt * cos_t);
-                        sum_corr += Vval * ang_kernel * (f - fpt) * w_total;
-                    }
 
-                    // g(z) = (1-z)
-                    Rval = std::sqrt(p_sq + pt_sq * z_comp_sq - 2.0 * p * pt * z_complement * cos_t);
-                    if (Rval > 0.0) {
-                        const dcomplex fpt = sample_f(Rval);
-                        const double ang_kernel = (1.0 / Rval) * (p - pt * z_complement * cos_t);
-                        // what changes between qqg and ggg is the asym_fac
-                        sum_corr += asym_fac * Vval * ang_kernel * (f - fpt) * w_total;
-                    }
+                // Replicate the gamma_qq integration pattern (Simpson over radial, GL over angle),
+                // but keep the three g(z) contributions and apply the color/asymmetry factor
+                // to the z-term (as in the original vertex logic).
+                const int N_p = 161; // radial Simpson points (must be odd)
+                auto simpson_weight = [](int i, int N) -> double {
+                    if (i == 0 || i == N - 1) return 1.0;
+                    return (i % 2 == 1) ? 4.0 : 2.0;
+                };
+                double h_p1 = (pmax - pmin) / (N_p - 1);
 
-                    // g(z) = z
-                    Rval = std::sqrt(p_sq + pt_sq * z_sq - 2.0 * p * pt * z * cos_t);
-                    if (Rval > 0.0) {
-                        const dcomplex fpt = sample_f(Rval);
-                        const double ang_kernel = (1.0 / Rval) * (p - pt * z * cos_t);
-                        sum_corr += Vval * ang_kernel * (f - fpt) * w_total;
-                    }
-                }
-            }
+                for (int i = 0; i < N_p; ++i) {
+                    const double pt = pmin + i * h_p1;
+                    const double pt_sq = pt * pt;
+                    const double Vval = V_func(pt, mu);
+                    const double w_r = simpson_weight(i, N_p);
+                    const double radial_weight = (w_r * h_p1 / 3.0);
 
-            // Region 2: [split, pmax]
-            for (int i = 0; i < n_radial; ++i) {
-                const double pt = pt2_nodes[i];
-                const double pt_sq = pt * pt;
-                const double Vval = V_func(pt, mu);
-                const double w_p = pt2_weights[i];
-                
-                for (int j = 0; j < n_angular; ++j) {
-                    const double cos_t = cos_theta[j];
-                    const double w_th = theta_weights[j];
-                    const double w_total = w_p * w_th;
-                    
-                    // g(z) = 1
-                    double Rval = std::sqrt(p_sq + pt_sq - 2.0 * p * pt * cos_t);
-                    if (Rval > 0.0) {
-                        const dcomplex fpt = sample_f(Rval);
-                        const double ang_kernel = (1.0 / Rval) * (p - pt * cos_t);
-                        sum_corr += Vval * ang_kernel * (f - fpt) * w_total;
-                    }
+                    for (int j = 0; j < n_angular; ++j) {
+                        const double cos_t = cos_theta[j];
+                        const double w_th = theta_weights[j];
 
-                    // g(z) = (1-z)
-                    Rval = std::sqrt(p_sq + pt_sq * z_comp_sq - 2.0 * p * pt * z_complement * cos_t);
-                    if (Rval > 0.0) {
-                        const dcomplex fpt = sample_f(Rval);
-                        const double ang_kernel = (1.0 / Rval) * (p - pt * z_complement * cos_t);
-                        sum_corr += asym_fac * Vval * ang_kernel * (f - fpt) * w_total;
-                    }
+                        // g(z) = 1
+                        {
+                            double Rval = std::sqrt(p_sq + pt_sq - 2.0 * p * pt * cos_t);
+                            if (Rval > 0.0) {
+                                const dcomplex fpt = sample_f(Rval);
+                                const double ang_kernel = (p - pt * cos_t);
+                                dcomplex integ_corr = Vval * ang_kernel * (f - fpt) * radial_weight * w_th;
+                                sum_corr += (1.0 / p) * integ_corr;
+                            }
+                        }
 
-                    // g(z) = z
-                    Rval = std::sqrt(p_sq + pt_sq * z_sq - 2.0 * p * pt * z * cos_t);
-                    if (Rval > 0.0) {
-                        const dcomplex fpt = sample_f(Rval);
-                        const double ang_kernel = (1.0 / Rval) * (p - pt * z * cos_t);
-                        sum_corr += Vval * ang_kernel * (f - fpt) * w_total;
+                        // g(z) = z  (apply asymmetry/color factor here)
+                        {
+                            double Rval = std::sqrt(p_sq + pt_sq * z_sq - 2.0 * p * pt * z * cos_t);
+                            if (Rval > 0.0) {
+                                const dcomplex fpt = sample_f(Rval);
+                                const double ang_kernel = (p - pt * z * cos_t);
+                                dcomplex integ_corr = asym_fac * Vval * ang_kernel * (f - fpt) * radial_weight * w_th;
+                                sum_corr += (1.0 / p) * integ_corr;
+                            }
+                        }
+
+                        // g(z) = 1 - z
+                        {
+                            double Rval = std::sqrt(p_sq + pt_sq * z_comp_sq - 2.0 * p * pt * z_complement * cos_t);
+                            if (Rval > 0.0) {
+                                const dcomplex fpt = sample_f(Rval);
+                                const double ang_kernel = (p - pt * z_complement * cos_t);
+                                dcomplex integ_corr = Vval * ang_kernel * (f - fpt) * radial_weight * w_th;
+                                sum_corr += (1.0 / p) * integ_corr;
+                            }
+                        }
                     }
                 }
-            }
 
-            HF[ix] += -I * qtilde * 0.5 * CA * sum_corr;
+
+            HF[ix] += -I * qtilde * C * sum_corr;
         }
     }
     

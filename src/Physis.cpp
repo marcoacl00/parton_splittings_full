@@ -141,20 +141,20 @@ std::vector<dcomplex> Physis::source_term(const std::vector<double>& p, const st
                 double k2 = k * k;
 
 
-                R = std::sqrt(k2 + l2 + 2.0*k*l*cos_psi) + 1e-12; // add small number to avoid singularity at R=0
+                R = std::sqrt(k2 + l2 + 2.0*k*l*cos_psi); // add small number to avoid singularity at R=0
 
-                pref = (k2 - l2) / R; 
+                pref = (k2 - l2); 
 
                 double jr = j_r(R);
                 double ji = j_i(R);
 
                 // note that idx(0, ip, ik, ip) = idx3(ip, ik, il).
-                
+                if (R == 0) continue;
                 s_term[idx(0, ip, il, ik)] =  pref * dcomplex(-ji, jr); // source multiplies by -i*/
                 // double R2 = k2 + l2 + 2.0 * k * l * cos_psi; // add small number to avoid singularity at R=0
                 // double r_ratio = (k2 - l2)/R2;
 
-                // //pref = -Iunit * 2.0 * omega;
+                // pref = -Iunit * 2.0 * omega;
                 // int idxc = idx(0, ip, il, ik);
 
                 // //s_term[idxc] =  pref * dcomplex(-ji, jr); // source multiplies by -i*/

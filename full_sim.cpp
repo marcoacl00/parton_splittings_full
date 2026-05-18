@@ -21,19 +21,19 @@ int main(int argc, char* argv[]) {
 
     // physics parameters
     double E  = 100.0;
-    double z = 0.5;
+    double z = 0.95;
     double qtilde = 1.5;
-    double Lp =  3.0 * E * z * (1 - z);
+    double Lp =  6.0 * E * z * (1 - z);
     double Lk =  0.5 * Lp;
-    double Ll =  0.25 * Lk;
-    double mu = 0.18;
+    double Ll =  0.1 * Lk; //from 0.01 to 0.25 for finite z
+    double mu = 0.3;
     // the less soft it gets, the more is necessary to increase both Nl, Ll and Npsi. for soft limit one can get away with very small values
-    int Nk = 80;
-    int Nl = 60; 
-    int Npsi = 5;
+    int Nk = 90;
+    int Nl = 20; 
+    int Npsi = 4;
 
     bool only_j = false; // if true, only compute the in-out evolution and skip the full 3D evolution 
-    string vertex = "gamma_qq";
+    string vertex = "q_qg";
     string Nc_mode = "LNc";
 
     int mode = 0;
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
         ///data/{vertex}_{Nc_mode}_final_{potential}.dat
         file_name_2D = "./data/" + vertex + "_" + Nc_mode + "/final_yuk.dat";
         file_name_3D = "./data/" + vertex + "_" + Nc_mode + "/final3D_yuk.dat";
-        p_min_coeff = 0.8;
+        p_min_coeff = 0.0;
         p_max_coeff = 30.0;
     }
     else if (mode == 1){
@@ -71,8 +71,8 @@ int main(int argc, char* argv[]) {
     else{
          file_name_2D = "./data/" + vertex + "_" + Nc_mode + "/final_ho.dat";
          file_name_3D = "./data/" + vertex + "_" + Nc_mode + "/final3D_ho.dat";
-        p_min_coeff = 4.0;
-        p_max_coeff = 10.0;
+        p_min_coeff = 0.0;
+        p_max_coeff = 6.0;
     }
 
     // if directory "./data/" + vertex + "_" + Nc_mode does not exist, create it
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
     Physis_J sis(E, z, qtilde, Lp, mu, mode, vertex, Nc_mode);
     Physis sis_f(E, z, qtilde, Lk, Ll, mu, mode, vertex, Nc_mode);
     // set dimensions
-    sis.set_dim(512);
+    sis.set_dim(256);
     sis_f.set_dim(Nk, Nl, Npsi);
 
 
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
     
 
     // maximum time (medium length)
-    double t_L = 4;
+    double t_L = 4.0;
 
     // time step
     
@@ -171,9 +171,9 @@ int main(int argc, char* argv[]) {
 
     for (int ix = 0; ix < sis.Np(); ++ix) {
         double p = sis.P()[ix];
-        taylor_coeffs_0[ix] = compute_f_r_pc(0, p, sis.z(), 0.01,  sis.pmin(), 128, 64, sis.mu(), sis.mode(), sis.vertex());
-        taylor_coeffs_1[ix] = compute_f_r_pc(1, p, sis.z(), 0.01,  sis.pmin(), 128, 64, sis.mu(), sis.mode(), sis.vertex());
-        taylor_coeffs_2[ix] = compute_f_r_pc(2, p, sis.z(), 0.01,  sis.pmin(), 128, 64, sis.mu(), sis.mode(), sis.vertex());
+        taylor_coeffs_0[ix] = compute_f_r_pc(0, p, sis.z(), 0.0,  sis.pmin(), 128, 128, sis.mu(), sis.mode(), sis.vertex());
+        taylor_coeffs_1[ix] = compute_f_r_pc(1, p, sis.z(), 0.0,  sis.pmin(), 128, 128, sis.mu(), sis.mode(), sis.vertex());
+        taylor_coeffs_2[ix] = compute_f_r_pc(2, p, sis.z(), 0.0,  sis.pmin(), 128, 128, sis.mu(), sis.mode(), sis.vertex());
     }
 
     /*for (int ix = 0; ix < sis.Np(); ++ix) {
@@ -305,6 +305,9 @@ int main(int argc, char* argv[]) {
                         int idx = sis_f.idx(sig, ip, il, ik);
                         int s_idx = sis_f.idx(0, ip, il, ik);
                         nHom_dt_2_f_copied[idx] = nHom_dt_2_f[s_idx];
+                        if(sis_f.vertex() == "q_qg" && sig == 2){
+                            nHom_dt_2_f_copied[idx] = 0.0; 
+                        }
                     }
                 }
             }
@@ -326,6 +329,9 @@ int main(int argc, char* argv[]) {
                         int idx = sis_f.idx(sig, ip, il, ik);
                         int s_idx = sis_f.idx(0, ip, il, ik);
                         newFsol_f[idx] = f_sol_n_f[idx] + (4.0/6.0) * f_term_2_f[idx] * ht + nHom_end_f[s_idx] * (ht / 6.0);
+                        if(sis_f.vertex() == "q_qg" && sig == 2){
+                            newFsol_f[idx] = 0.0;
+                        }
                     }
                 }
             }
@@ -355,7 +361,7 @@ int main(int argc, char* argv[]) {
         }
 
         // replicate end-of-simulation saving (save intermediate results, don't overwrite original names)
-        if ((cont % 5 == 1)) {
+        if ((cont % 100 == 1)) {
             // build intermediate 2D filename (do not modify file_name_2D)
             {
             string base = file_name_2D;
@@ -366,7 +372,7 @@ int main(int argc, char* argv[]) {
                 base = base.substr(0, p);
             }
             std::ostringstream ss;
-            ss << base << "_" << vertex << "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << "_L_" << tt << ext;
+            ss << base << "_" << vertex << "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << "_L_" << tt << "_Lp_" << Lp << ext;
             string tmp2D = ss.str();
 
             ofstream ofs(tmp2D);
@@ -387,7 +393,7 @@ int main(int argc, char* argv[]) {
                 base = base.substr(0, p);
             }
             std::ostringstream ss;
-            ss << base << "_" << vertex << "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << "_L_" << tt << ext;
+            ss << base << "_" << vertex << "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << "_L_" << tt << "_Lk_" << Lk << "_Lp_" << Lp << ext;
             string tmp3D = ss.str();
 
             ofstream ofs_f(tmp3D);
@@ -422,7 +428,7 @@ int main(int argc, char* argv[]) {
             base = base.substr(0, p);
         }
         std::ostringstream ss;
-        ss << base << "_" << vertex << "_" "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << "_L_" << t_L << ext;
+        ss << base << "_" << vertex << "_" "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << "_L_" << t_L << "_Lp_" << Lp << ext;
         file_name_2D = ss.str();
     }
 
@@ -448,7 +454,7 @@ int main(int argc, char* argv[]) {
                 base = base.substr(0, p);
             }
             std::ostringstream ss;
-        ss << base << "_" << vertex << "_" "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << "_L_" << t_L << ext;
+        ss << base << "_" << vertex << "_" "_E_" << E << "_z_" << z << "_q_" << qtilde << "_mu_" << mu << "_L_" << t_L << "_Lk_" << Lk << "_Lp_" << Lp << ext;
         file_name_3D = ss.str();
     }
 

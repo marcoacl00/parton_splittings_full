@@ -42,8 +42,8 @@ void faber_params3D_ker(const Physis_J& sys, double &lambda_F, dcomplex &gamma_0
 
     double lam_re_max = Lp*Lp / (omega);
     double lam_re_min = 0.0;
-    double lam_im_max = qtilde/(mu*mu*mu*mu)  +  qtilde/(delta_p*delta_p);
-    double lam_im_min = -qtilde/(mu*mu*mu*mu) -  qtilde/(delta_p*delta_p); ;
+    double lam_im_max = +  qtilde/(mu*mu);
+    double lam_im_min = -  qtilde/(mu*mu); ;
 
     double c = (lam_re_max - lam_re_min)/2.0;
     double l = (lam_im_max - lam_im_min)/2.0;

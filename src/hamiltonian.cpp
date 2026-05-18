@@ -15,7 +15,7 @@ double VHTL_eff(double q, double mu)
     // yukawa potential (extra q factor due to polar coordinates jacobian) q / pow((q*q + mu*mu), 2)
     // extra 4 factor comes from simplifications of the convolution
     // htl 1 / (q*(q*q + (inv_sqrt_e * mu)*(inv_sqrt_e * mu)))
-    return  1.0 / (4.0*q*(4.0*q*q + (e * mu*mu))); //q / pow((q*q + mu*mu), 2); 
+    return  1.0 / (q*q*(q*q + (e * mu*mu))); //q / pow((q*q + mu*mu), 2); 
 }
 
 double VHO_eff(double q, double mu)
@@ -30,10 +30,8 @@ double VHO_eff(double q, double mu)
 
 double VYUK_eff(double q, double mu)
 {   double eps = mu;
-    // yukawa potential (extra q factor due to polar coordinates jacobian) q / pow((q*q + mu*mu), 2)
-    // htl 1 / (q*(q*q + (inv_sqrt_e * mu)*(inv_sqrt_e * mu)))
  
-    return  q / pow((4.0*q*q + mu*mu), 2);
+    return  1 / pow((q*q + mu*mu), 2);
 }
 
 struct GaussLegendre {
@@ -184,7 +182,7 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
     // map Gauss-Legendre nodes from [-1,1] to integration domains
     // For radial: [pmin, pmax]
     double sp = mu;
-    double split =  (mode == 2) ? 5.0 * mu : 10.0 * mu;
+    double split =  (mode == 2) ? 3.0 * mu : 10.0 * mu;
 
     vector<double> p1_nodes, p1_weights; // region [pmin, split]
     vector<double> p2_nodes, p2_weights; // region [split, pmax]
@@ -339,8 +337,9 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
                         const PointMsk& point_mask) -> SigArr {
 
         psi = std::clamp(psi, psi_min, psi_max);
-        k   = std::clamp(k,   k_min,   k_max);
-        l   = std::clamp(l,   l_min,   l_max);
+        if (k > k_max || l > l_max) {
+            return SigArr{};  // zero-init, all components 0
+        }
  
         int ip_ = std::clamp(static_cast<int>((psi - psi_min) * inv_dpsi), 0, Npsi - 2);
         int ik_ = std::clamp(static_cast<int>((k   - k_min)   * inv_dk),   0, Nk   - 2);
@@ -454,8 +453,8 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
                        const SigArr& Sigp, const SigArr& Sigm) -> SigArr {
         SigArr out{};
         out[0] = 2.0*CF * Sig0[0];
-        out[1] = CA * (Sig0[0] - Sigzsc[0])
-               + 2.0*CF * (Sigp[1] + Sigm[1]);
+        out[1] = + 2.0*CF * (Sigp[1] + Sigm[1]); //CA * (Sig0[0] - Sigzsc[0])
+               
                
         if (!is_large_Nc) {
             out[0] += (1.0/CA) * (Sigzsc[0] - Sigp[0] - Sigm[0])
@@ -473,8 +472,8 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
         out[1] = CA * (-Sigzsc[0] + Sig0[0])
                + 2.0 * (CF * Sigp[1] + CA * Sigm[1]);
         if (!is_large_Nc) {
-            out[0] += -Sigp[0]/CA + (Sigzsc[2] - Sig0[2]);
-            out[2]  = (Sigzsc[0] - Sig0[0])
+            out[0] += -Sigp[0]/CA + 1/(CA*CA*(CA*CA-1))*(Sigzsc[2] - Sig0[2]);
+            out[2]  = CA*CA*(CA*CA-1) * (Sigzsc[0] - Sig0[0])
                     + CA * (Sigzsc[1] + Sig0[1] - 2.0*(Sigp[1] + Sigm[1]))
                     + (-(1.0/CA) * Sigp[2] + CA * (Sigzsc[2] + Sigm[2]));
         }

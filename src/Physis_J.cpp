@@ -31,7 +31,7 @@ void Physis_J::set_dim(int Np) {
     P_.resize(Np_);
 
     for (int i = 0; i < Np_; ++i) {
-        P_[i] = (Lp_ * i) / double(Np_ - 1);
+        P_[i] = (Lp_ * (i)) / double(Np_ - 1);
     }
 }
 
@@ -49,7 +49,7 @@ std::vector<dcomplex> Physis_J::source_term() const {
     std::vector<dcomplex> S(Np_, dcomplex(0.0, 0.0));
 
     for (int ix = 0; ix < Np_; ++ix) {
-        S[ix] = -Iunit * P_[ix];
+        S[ix] = -Iunit; //* P_[ix];
     }
 
     return S;
