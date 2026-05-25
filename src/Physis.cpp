@@ -110,8 +110,38 @@ std::vector<dcomplex> Physis::source_term(const std::vector<double>& p, const st
         j_imag[i] = std::imag(j_p[i]);
     }
 
-    tk::spline j_r(p, j_real);
-    tk::spline j_i(p, j_imag);
+    if (p.size() < 2 || j_real.size() != p.size() || j_imag.size() != p.size()) {
+        throw std::runtime_error("Interpolation arrays must have same size >= 2");
+    }
+
+    // Linear interpolation lambdas (clamped outside the provided p range)
+    auto j_r = [&](double x) -> double {
+        if (x <= p.front()) return j_real.front();
+        if (x >= p.back())  return j_real.back();
+        for (std::size_t i = 1; i < p.size(); ++i) {
+            if (x <= p[i]) {
+                double x0 = p[i-1], x1 = p[i];
+                double y0 = j_real[i-1], y1 = j_real[i];
+                double t = (x - x0) / (x1 - x0);
+                return y0 + t * (y1 - y0);
+            }
+        }
+        return j_real.back(); // fallback (shouldn't reach)
+    };
+
+    auto j_i = [&](double x) -> double {
+        if (x <= p.front()) return j_imag.front();
+        if (x >= p.back())  return j_imag.back();
+        for (std::size_t i = 1; i < p.size(); ++i) {
+            if (x <= p[i]) {
+                double x0 = p[i-1], x1 = p[i];
+                double y0 = j_imag[i-1], y1 = j_imag[i];
+                double t = (x - x0) / (x1 - x0);
+                return y0 + t * (y1 - y0);
+            }
+        }
+        return j_imag.back();
+    };
 
     double delta_l = Ll_ / (Nl_ - 1);
 
@@ -124,8 +154,11 @@ std::vector<dcomplex> Physis::source_term(const std::vector<double>& p, const st
 
     double omega = omega_;
     double qtilde = qtilde_;
+    double z = z_;
+    double CF = (Nc_mode_ == "LNc") ? 1.5 : 4.0/3.0;
+    double CA = 3.0;
 
-    dcomplex Omega = (1.0 - Iunit) * 0.5 * std::sqrt(1.5 * qtilde / omega);
+    dcomplex Omega = (1.0 - Iunit) * 0.5 * std::sqrt(((1-z) * CA + z*z * CF) * qtilde / omega);
     
     std::vector<dcomplex> s_term;
     s_term.resize(Npsi_*Nk_*Nl_);
@@ -157,7 +190,7 @@ std::vector<dcomplex> Physis::source_term(const std::vector<double>& p, const st
                 // pref = -Iunit * 2.0 * omega;
                 // int idxc = idx(0, ip, il, ik);
 
-                // //s_term[idxc] =  pref * dcomplex(-ji, jr); // source multiplies by -i*/
+                // ////s_term[idxc] =  pref * dcomplex(-ji, jr); // source multiplies by -i*/
 
 
 

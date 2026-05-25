@@ -529,7 +529,7 @@ vector<dcomplex> Hamiltonian_J(const Physis_J& sys,
 
 
         if (is_gamma_qq) {
-            const int N_p = 161;       // radial points (must be odd)
+            const int N_p = 261;       // radial points (must be odd)
             
             
             auto simpson_weight = [](int i, int N) -> double {
@@ -560,7 +560,7 @@ vector<dcomplex> Hamiltonian_J(const Physis_J& sys,
                     const dcomplex fpt = sample_f(Rval);
                     const double ang_kernel = (p - pt * cos_t);
                     dcomplex integ_corr = Vval * ang_kernel * (f - fpt) * radial_weight * w_th;
-                    sum_corr += 1/p * integ_corr;
+                    sum_corr += 1.0/p * integ_corr;
                 }
             }
 

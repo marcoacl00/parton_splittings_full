@@ -20,16 +20,15 @@ const dcomplex I(0.0, 1.0);
 int main(int argc, char* argv[]) {
 
     // physics parameters
-    double E  = 100.0;
-    double z = 0.95;
-    double qtilde = 1.5;
-    double Lp =  6.0 * E * z * (1 - z);
+    double E  = 5000.0;
+    double z = 0.01;
+    double qtilde = 0.5;
+    double Lp =  2.0 * E * z * (1 - z);
     double Lk =  0.5 * Lp;
-    double Ll =  0.1 * Lk; //from 0.01 to 0.25 for finite z
-    double mu = 0.3;
-    // the less soft it gets, the more is necessary to increase both Nl, Ll and Npsi. for soft limit one can get away with very small values
-    int Nk = 90;
-    int Nl = 20; 
+    double Ll =  0.03 * Lk; //from 0.01 to 0.25 for finite z
+    double mu = 0.8;    // the less soft it gets, the more is necessary to increase both Nl, Ll and Npsi. for soft limit one can get away with very small values holi
+    int Nk = 200;
+    int Nl = 8; 
     int Npsi = 4;
 
     bool only_j = false; // if true, only compute the in-out evolution and skip the full 3D evolution 
@@ -65,7 +64,7 @@ int main(int argc, char* argv[]) {
     else if (mode == 1){
         file_name_2D = "./data/" + vertex + "_" + Nc_mode + "/final_htl.dat";
         file_name_3D = "./data/" + vertex + "_" + Nc_mode + "/final3D_htl.dat";
-        p_min_coeff = 0.6;
+        p_min_coeff = 0.2;
         p_max_coeff = 30.0;
     }
     else{
@@ -88,7 +87,7 @@ int main(int argc, char* argv[]) {
     Physis_J sis(E, z, qtilde, Lp, mu, mode, vertex, Nc_mode);
     Physis sis_f(E, z, qtilde, Lk, Ll, mu, mode, vertex, Nc_mode);
     // set dimensions
-    sis.set_dim(256);
+    sis.set_dim(512);
     sis_f.set_dim(Nk, Nl, Npsi);
 
 
@@ -98,7 +97,7 @@ int main(int argc, char* argv[]) {
     
 
     // maximum time (medium length)
-    double t_L = 4.0;
+    double t_L = 2.0;
 
     // time step
     
@@ -466,6 +465,8 @@ int main(int argc, char* argv[]) {
     }
     ofs_f.close();
     }
+
+    cout << "3D Result saved in " << file_name_3D << endl;
 
     return 0;
 }

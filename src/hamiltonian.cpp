@@ -22,7 +22,7 @@ double VHO_eff(double q, double mu)
 {   double eps = mu;
     double exp = std::exp(-q*q / (2 * eps*eps));
 
-    double fac = PI / 4.0 * 1.0 / (2.0 * PI * pow(eps, 4)) * (q*q  / (eps*eps)  - 2.0);
+    double fac = 0.25 * 1.0 / (2.0 * pow(eps, 4)) * (q*q  / (eps*eps)  - 2.0);
 
 
     return exp * fac;
@@ -31,7 +31,7 @@ double VHO_eff(double q, double mu)
 double VYUK_eff(double q, double mu)
 {   double eps = mu;
  
-    return  1 / pow((q*q + mu*mu), 2);
+    return  1.0 / pow((q*q + mu*mu), 2);
 }
 
 struct GaussLegendre {
@@ -88,7 +88,7 @@ private:
 
 
 // Global precomputed Gauss-Legendre quadrature points (initialize once)
-static const GaussLegendre GL_RADIAL(10);
+static const GaussLegendre GL_RADIAL(12);
 
 static constexpr int MAX_NSIG = 6;
 static constexpr int N_GEOM   = 6;   // number of interpolated geometry points
@@ -113,6 +113,23 @@ struct current_eval {
     double pl;
     double kl;
 };
+
+inline double ramp(double x, double x0, double xmax) {
+    if (x <= x0) return 0.0;
+    double s = (x - x0) / (xmax - x0);
+    if (s >= 1.0) s = 1.0;
+    return s * s * s * s;  // quartic, C^1 at the join
+}
+
+double sponge_profile(double k, double l,
+                      double Lk, double Ll,
+                      double k0, double l0,
+                      double gamma0) {
+    // separate ramps in k and l, combined so corner is also damped
+    double rk = ramp(k, k0, Lk);
+    double rl = ramp(l, l0, Ll);
+    return gamma0 * (rk + rl);  // or std::max(rk, rl) if you prefer
+}
 
 
 
@@ -182,7 +199,7 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
     // map Gauss-Legendre nodes from [-1,1] to integration domains
     // For radial: [pmin, pmax]
     double sp = mu;
-    double split =  (mode == 2) ? 3.0 * mu : 10.0 * mu;
+    double split =  (mode == 2) ? 6.0 * mu : 20.0 * mu;
 
     vector<double> p1_nodes, p1_weights; // region [pmin, split]
     vector<double> p2_nodes, p2_weights; // region [split, pmax]
@@ -195,15 +212,12 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
 
     // Map separately for two radial subdomains. If split is outside [pmin,pmax],
     // one of the regions becomes the full interval.
-    double a1 = 0.0;
+    double a1 = 0.3*mu;
     double b1 = split; 
-    double a2 = split;
-    double b2 = 5.0*mu;
 
     double mid1 = 0.5 * (b1 + a1);
     double half1 = 0.5 * (b1 - a1);
-    double mid2 = 0.5 * (b2 + a2);
-    double half2 = 0.5 * (b2 - a2);
+    
 
     for (int i = 0; i < n_radial; ++i) {
         // region 1: [a1, b1]
@@ -212,10 +226,7 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
 
         //cout << "p1: " << p1_nodes[i] << " w1: " << p1_weights[i] << endl;
 
-        // region 2: [a2, b2]
-        p2_nodes[i] = mid2 + half2 * GL_RADIAL.nodes[i];
-        p2_weights[i] = half2 * GL_RADIAL.weights[i];
-
+        // region 2: [a2, b2
         // cout << "p1: " << p1_nodes[i] << " w1: " << p1_weights[i] << " | p2: " << p2_nodes[i] << " w2: " << p2_weights[i] << endl;
     }
 
@@ -340,6 +351,10 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
         if (k > k_max || l > l_max) {
             return SigArr{};  // zero-init, all components 0
         }
+
+        if (k == 0 && l == 0){
+            return SigArr{};
+        }
  
         int ip_ = std::clamp(static_cast<int>((psi - psi_min) * inv_dpsi), 0, Npsi - 2);
         int ik_ = std::clamp(static_cast<int>((k   - k_min)   * inv_dk),   0, Nk   - 2);
@@ -364,10 +379,10 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
             const InterpCoeffs& c  = der_coeffs[base];
             const InterpCoeffs& cn = der_coeffs[basen];
 
-            dcomplex v  = c.f  + c.fk *t_k + c.fl *t_l
+            dcomplex v  = c.f  + c.fk *t_k + c.fl *t_l +
                             + c.fkk*tk2 + c.fll*tl2 + c.flk*tkl;
-            dcomplex vn = cn.f + cn.fk*t_k + cn.fl*t_l
-                            + cn.fkk*tk2 + cn.fll*tl2 + cn.flk*tkl;
+            dcomplex vn = cn.f + cn.fk*t_k + cn.fl*t_l + 
+                            cn.fkk*tk2 + cn.fll*tl2 + cn.flk*tkl;
  
             result[s] = one_t * v + t_psi * vn;
         }
@@ -445,7 +460,7 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
     };
  
     // ==================================================================
-    // Vertex-specific M-matrix assembly. Pure physics.
+    // Vertex-specific M-matrix 
     // ==================================================================
  
     // gamma -> q qbar
@@ -519,6 +534,14 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
                     double kinetic = 2.0 * (k * l) / omega * cos_psi;
                     for (int s = 0; s < Nsig; ++s)
                         HF[sys.idx(s, ip, il, ik)] = kinetic * f_here[s];
+
+                    double gamma = 0.0;
+                    
+                    if (gamma > 0.0) {
+                        dcomplex damp = dcomplex(0.0, -gamma);  // -i * gamma
+                        for (int s = 0; s < Nsig; ++s)
+                            HF[sys.idx(s, ip, il, ik)] += damp * f_here[s];
+                    }
  
                     SigArr sum{};
  
