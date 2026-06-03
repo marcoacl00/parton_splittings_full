@@ -24,7 +24,7 @@ Physis::Physis(double E,
 
 
 void Physis::set_dim(int Nk, int Nl, int Npsi) {
-    if (Nk < 3 || Nl < 3 || Npsi < 3) {
+    if (Nk < 3 || Nl < 1 || Npsi < 1) {
         throw std::runtime_error("N_(k/l/psi) must be >= 3");
     }
     
@@ -43,14 +43,25 @@ void Physis::set_dim(int Nk, int Nl, int Npsi) {
     }
 
     // il for the l axis
-    for (int il = 0; il < Nl_; ++il) {
-        L_[il] = (Ll_ * il) / double(Nl_ - 1);
+    if (Nl_ == 1) {
+        L_[0] = 0.0; // if only one point, put it at the origin (soft limit)
+    }
+    else {
+        for (int il = 0; il < Nl_; ++il) {
+            L_[il] = (Ll_ * il) / double(Nl_ - 1);
+        }
     }
 
+
     // ... and ip for the psi axis ∈ [0, pi]
-    for (int ip = 0; ip < Npsi_; ++ip) {
+    if( Npsi_ == 1) {
+        Psi_[0] = 0.0; // if only one point, put it at the origin (collinear limit)
+        Cos_Psi_[0] = 1.0;
+    } else {
+        for (int ip = 0; ip < Npsi_; ++ip) {
         Psi_[ip] = (M_PI * ip) / double(Npsi_ - 1);
         Cos_Psi_[ip] = std::cos(Psi_[ip]); // initialize the cos array to save computational time
+    }
     }
 
     std::cout << "Initialized grid with Nk=" << Nk_ << ", Nl=" << Nl_ << ", Npsi=" << Npsi_ << "\n";
@@ -158,7 +169,7 @@ std::vector<dcomplex> Physis::source_term(const std::vector<double>& p, const st
     double CF = (Nc_mode_ == "LNc") ? 1.5 : 4.0/3.0;
     double CA = 3.0;
 
-    dcomplex Omega = (1.0 - Iunit) * 0.5 * std::sqrt(((1-z) * CA + z*z * CF) * qtilde / omega);
+    // dcomplex Omega = (1.0 - Iunit) * 0.5 * std::sqrt(((1-z) * CA + z*z * CF) * qtilde / omega);
     
     std::vector<dcomplex> s_term;
     s_term.resize(Npsi_*Nk_*Nl_);

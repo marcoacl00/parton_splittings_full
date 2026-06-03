@@ -53,7 +53,7 @@ void precompute_derivatives_3d(
             // ==============================
             
             // ===== ∂f/∂k =====
-            if (ik == 0) {
+            /*if (ik == 0) {
 
                 // left boundary; use forward difference formulas 
                 // f'(k[0]) = (-3f0 + 4f1 - f2)/(2Δk) + O(Δk²)
@@ -397,7 +397,7 @@ void precompute_derivatives_3d(
             //     fpk[flat_idx] = (fH0[sys.idx(s, ip+1, il, ik+1)] 
             //                 - fH0[sys.idx(s, ip-1, il, ik+1)]
             //                 - fH0[sys.idx(s, ip+1, il, ik-1)] 
-            //                 + fH0[sys.idx(s, ip-1, il, ik-1)]) * (0.25 * inv_delta_psi * inv_delta_k);
+            //                 + fH0[sys.idx(s, ip-1, il, ik-1)]) * (0.25 * inv_delta_psi * inv_delta_k);*/
             // }
         }
     }}}

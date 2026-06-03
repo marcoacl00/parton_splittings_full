@@ -20,16 +20,16 @@ const dcomplex I(0.0, 1.0);
 int main(int argc, char* argv[]) {
 
     // physics parameters
-    double E  = 5000.0;
-    double z = 0.01;
+    double E  = 1000.0;
+    double z = 0.85;
     double qtilde = 0.5;
-    double Lp =  2.0 * E * z * (1 - z);
+    double Lp = 2.0 * E * z * (1 - z);
     double Lk =  0.5 * Lp;
-    double Ll =  0.03 * Lk; //from 0.01 to 0.25 for finite z
-    double mu = 0.8;    // the less soft it gets, the more is necessary to increase both Nl, Ll and Npsi. for soft limit one can get away with very small values holi
+    double Ll =  0.12 * Lk; //from 0.01 to 0.25 for finite z
+    double mu = 0.3;    // the less soft it gets, the more is necessary to increase both Nl, Ll and Npsi. for soft limit one can get away with very small values holi
     int Nk = 200;
-    int Nl = 8; 
-    int Npsi = 4;
+    int Nl = 30; 
+    int Npsi = 3;
 
     bool only_j = false; // if true, only compute the in-out evolution and skip the full 3D evolution 
     string vertex = "q_qg";
@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
     
 
     // maximum time (medium length)
-    double t_L = 2.0;
+    double t_L = 4.0;
 
     // time step
     

@@ -88,7 +88,7 @@ private:
 
 
 // Global precomputed Gauss-Legendre quadrature points (initialize once)
-static const GaussLegendre GL_RADIAL(12);
+static const GaussLegendre GL_RADIAL(20);
 
 static constexpr int MAX_NSIG = 6;
 static constexpr int N_GEOM   = 6;   // number of interpolated geometry points
@@ -193,13 +193,13 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
 
     // ---- Gauss-Legendre setup --- 
     const int n_radial = GL_RADIAL.nodes.size();
-    const int n_angular = 12; // can be adjusted for accuracy
+    const int n_angular = 6; // can be adjusted for accuracy
 
     
     // map Gauss-Legendre nodes from [-1,1] to integration domains
     // For radial: [pmin, pmax]
     double sp = mu;
-    double split =  (mode == 2) ? 6.0 * mu : 20.0 * mu;
+    double split =  (mode == 2) ? 6.0 * mu : 60.0 * mu;
 
     vector<double> p1_nodes, p1_weights; // region [pmin, split]
     vector<double> p2_nodes, p2_weights; // region [split, pmax]
@@ -212,7 +212,7 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
 
     // Map separately for two radial subdomains. If split is outside [pmin,pmax],
     // one of the regions becomes the full interval.
-    double a1 = 0.3*mu;
+    double a1 = 0.0*mu;
     double b1 = split; 
 
     double mid1 = 0.5 * (b1 + a1);
@@ -345,46 +345,99 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
     // Unmasked entries stay zero (harmless: the M-matrix won't read them).
     // ==================================================================
     auto get_fval = [&](double psi, double k, double l,
-                        const PointMsk& point_mask) -> SigArr {
+                    const PointMsk& point_mask) -> SigArr {
+        // ---- 1. Canonicalize angle to [0, π] ----
+        psi = std::abs(std::remainder(psi, 2.0 * M_PI));
 
-        psi = std::clamp(psi, psi_min, psi_max);
-        if (k > k_max || l > l_max) {
-            return SigArr{};  // zero-init, all components 0
-        }
-
-        if (k == 0 && l == 0){
+        // ---- 2. Out-of-range in (k, l) -> zero. No silent clamping. ----
+        if (k < k_min || k > k_max || l < l_min || l > l_max) {
             return SigArr{};
         }
- 
-        int ip_ = std::clamp(static_cast<int>((psi - psi_min) * inv_dpsi), 0, Npsi - 2);
-        int ik_ = std::clamp(static_cast<int>((k   - k_min)   * inv_dk),   0, Nk   - 2);
-        int il_ = std::clamp(static_cast<int>((l   - l_min)   * inv_dl),   0, Nl   - 2);
- 
-        double t_psi = (psi - psi_array[ip_]) * inv_dpsi;
-        double t_k   = k - K_array[ik_];
-        double t_l   = l - L_array[il_];
- 
-        double tk2   = 0.5 * t_k * t_k;
-        double tl2   = 0.5 * t_l * t_l;
-        double tkl   =       t_k * t_l;
-        double one_t = 1.0 - t_psi;
- 
-        SigArr result{};  // zero-init
-        for (int s = 0; s < Nsig; ++s) {
-            if (!point_mask[s]) continue;  // <-- skip unneeded components
- 
-            int base  = sys.idx(s, ip_,     il_, ik_);
-            int basen = sys.idx(s, ip_ + 1, il_, ik_);
- 
-            const InterpCoeffs& c  = der_coeffs[base];
-            const InterpCoeffs& cn = der_coeffs[basen];
 
-            dcomplex v  = c.f  + c.fk *t_k + c.fl *t_l +
-                            + c.fkk*tk2 + c.fll*tl2 + c.flk*tkl;
-            dcomplex vn = cn.f + cn.fk*t_k + cn.fl*t_l + 
-                            cn.fkk*tk2 + cn.fll*tl2 + cn.flk*tkl;
- 
-            result[s] = one_t * v + t_psi * vn;
+        // ---- 3. Detect degenerate axes and locate cells accordingly. ----
+        // An axis is "degenerate" if it has fewer than 2 cells (i.e., N <= 1
+        // means a single node, N == 2 means a single cell, N >= 2 means we can
+        // interpolate). The interpolation uses N-1 cells, so we need N >= 2 to
+        // have a cell at all. For N == 1, the axis collapses to a constant.
+        //
+        // We always need k to be interpolable (the radial axis matters for
+        // physics), so we don't add a degenerate-k branch — assert it instead.
+
+        const bool psi_degenerate = (Npsi <= 2);
+        const bool l_degenerate   = (Nl   <= 2);
+
+        assert(Nk >= 2 && "k axis must have at least 2 nodes for interpolation");
+
+        // Locate the cell on each axis. For degenerate axes, ip_ or il_ stays at 0
+        // and the corresponding parameter u or w is forced to 0 (so the "upper"
+        // corner gets zero weight).
+        int ip_ = 0;
+        int il_ = 0;
+        int ik_ = std::clamp(static_cast<int>(std::floor((k - k_min) * inv_dk)),
+                            0, Nk - 2);
+
+        double u = 0.0;
+        double w = 0.0;
+        const double v = (k - K_array[ik_]) * inv_dk;     // k axis is never degenerate
+
+        if (!psi_degenerate) {
+            ip_ = std::clamp(static_cast<int>(std::floor((psi - psi_min) * inv_dpsi)),
+                            0, Npsi - 2);
+            u = (psi - psi_array[ip_]) * inv_dpsi;
+        }
+        // else: ip_ = 0, u = 0 — the (ip_+1) corners will get zero weight,
+        //       so we never actually read der_coeffs at an out-of-range index
+        //       as long as Npsi >= 1 (which it always must be).
+
+        if (!l_degenerate) {
+            il_ = std::clamp(static_cast<int>(std::floor((l - l_min) * inv_dl)),
+                            0, Nl - 2);
+            w = (l - L_array[il_]) * inv_dl;
+        }
+        // else: il_ = 0, w = 0 — same logic.
+
+        // ---- 4. Compute the trilinear weights as usual. ----
+        // When u = 0 (degenerate psi), only the four corners with offset 0 in psi
+        // get nonzero weight. Same for w. Math works out correctly without any
+        // special-case branching in the weighted sum below.
+        const double um = 1.0 - u, vm = 1.0 - v, wm = 1.0 - w;
+        const double w000 = um * wm * vm;
+        const double w100 = u  * wm * vm;
+        const double w010 = um * wm * v;
+        const double w110 = u  * wm * v;
+        const double w001 = um * w  * vm;
+        const double w101 = u  * w  * vm;
+        const double w011 = um * w  * v;
+        const double w111 = u  * w  * v;
+
+        assert(std::abs(w000 + w100 + w010 + w110 + w001 + w101 + w011 + w111 - 1.0) < 1e-12);
+
+        // ---- 5. Determine the safe upper-corner indices. ----
+        // For degenerate axes, we still need a valid index for sys.idx, even
+        // though that corner's weight is zero. Use the same node as the "lower"
+        // corner — the read happens but contributes nothing.
+        const int ip_next = psi_degenerate ? ip_ : (ip_ + 1);
+        const int il_next = l_degenerate   ? il_ : (il_ + 1);
+        // ik always has at least 2 nodes, so ik_ + 1 is always valid:
+        const int ik_next = ik_ + 1;
+
+        SigArr result{};
+        for (int s = 0; s < Nsig; ++s) {
+            if (!point_mask[s]) continue;
+
+            const dcomplex f000 = der_coeffs[sys.idx(s, ip_,     il_,      ik_     )].f;
+            const dcomplex f100 = der_coeffs[sys.idx(s, ip_next, il_,      ik_     )].f;
+            const dcomplex f010 = der_coeffs[sys.idx(s, ip_,     il_,      ik_next )].f;
+            const dcomplex f110 = der_coeffs[sys.idx(s, ip_next, il_,      ik_next )].f;
+            const dcomplex f001 = der_coeffs[sys.idx(s, ip_,     il_next,  ik_     )].f;
+            const dcomplex f101 = der_coeffs[sys.idx(s, ip_next, il_next,  ik_     )].f;
+            const dcomplex f011 = der_coeffs[sys.idx(s, ip_,     il_next,  ik_next )].f;
+            const dcomplex f111 = der_coeffs[sys.idx(s, ip_next, il_next,  ik_next )].f;
+
+            result[s] = w000 * f000 + w100 * f100
+                    + w010 * f010 + w110 * f110
+                    + w001 * f001 + w101 * f101
+                    + w011 * f011 + w111 * f111;
         }
         return result;
     };
@@ -535,18 +588,11 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
                     for (int s = 0; s < Nsig; ++s)
                         HF[sys.idx(s, ip, il, ik)] = kinetic * f_here[s];
 
-                    double gamma = 0.0;
                     
-                    if (gamma > 0.0) {
-                        dcomplex damp = dcomplex(0.0, -gamma);  // -i * gamma
-                        for (int s = 0; s < Nsig; ++s)
-                            HF[sys.idx(s, ip, il, ik)] += damp * f_here[s];
-                    }
- 
                     SigArr sum{};
  
                     if (half1 > 0.0) {
-                        int Nsim = std::max(2, 2*n_radial);
+                        int Nsim = std::max(2, n_radial);
                         if (Nsim % 2 != 0) ++Nsim;
                         double h = (b1 - a1) / static_cast<double>(Nsim);
                         double cheb_w = M_PI / static_cast<double>(n_angular);
@@ -554,11 +600,11 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
                         SigArr racc{};
  
                         for (int ii = 0; ii <= Nsim; ++ii) {
-                            double p    = a1 + ii * h;
-                            int coeff   = (ii == 0 || ii == Nsim) ? 1
-                                        : (ii % 2 == 1 ? 4 : 2);
+                            double p    = p1_nodes[ii];
+                            // int coeff   = (ii == 0 || ii == Nsim) ? 1
+                                        //: (ii % 2 == 1 ? 4 : 2);
                             double Vp   = V(2.0 * p, sp);
-                            double w    = h / 3.0 * p * Vp * double(coeff);
+                            double w    = p1_weights[ii] * p * Vp;
  
                             SigArr tacc{};
  
@@ -587,9 +633,8 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
  
                                 for (int s = 0; s < Nsig; ++s)
                                     tacc[s] += d[s] + e[s];
-                            }
- 
-                            for (int s = 0; s < Nsig; ++s)
+                        }
+                         for (int s = 0; s < Nsig; ++s)
                                 racc[s] += w * cheb_w * tacc[s];
                         }
  
@@ -603,22 +648,136 @@ vector<dcomplex> Hamiltonian(const Physis& sys, const vector<dcomplex>& fH0){
             }
         }
     };
+
+    // auto run_quadrature = [&](auto&& M_matrix) {
+
+    //     // ---- Radial quadrature setup ----
+    //     // Composite midpoint on two sub-regions: [0, b1] and [b1, pmax].
+    //     // Midpoint pairs naturally with the trilinear interpolant (both O(h²)),
+    //     // avoids evaluating at cell boundaries, and trivially supports Richardson
+    //     // extrapolation if you want to upgrade accuracy later.
+    //     //
+    //     // The two regions exist because the integrand V(2p)·p·f typically has
+    //     // different characteristic scales near and far from p ~ mu. You can use
+    //     // different resolutions in each: more nodes near the peak, fewer in the tail.
+
+    //     const double a1 = 0.0;     // inner region start
+    //     const double b1 = split;   // inner region end (= 6*mu or 20*mu, set above)
+
+    //     // Resolution per region. Tune these if needed; N1 controls accuracy near
+    //     // the dominant scale, N2 controls the slowly-converging tail.
+    //     const int N1 = 32;   // inner region nodes
+
+    //     const double h1 = (b1 - a1)   / static_cast<double>(N1);
+
+    //     const double cheb_w = M_PI / static_cast<double>(n_angular);
+
+    //     // ---- Helper: one full angular sweep at a given p, accumulating into tacc ----
+    //     // Captures everything via [&] from the enclosing scope.
+    //     auto angular_sweep = [&](double p, double cos_psi, double sin_psi,
+    //                             int il, double k, double k2,
+    //                             double l, double l2, double kl,
+    //                             const SigArr& f_here,
+    //                             SigArr& tacc) {
+    //         for (int j = 0; j < n_angular; ++j) {
+    //             const double cj = cos_theta[j];
+    //             const double sj = sin_theta[j];
+
+    //             std::array<SigArr, N_GEOM> samples;
+    //             SigArr Sig0, Sigzsc, Sigp, Sigm;
+
+    //             // +theta
+    //             sample_geometry(p, cj, sj, il,
+    //                             cos_psi, sin_psi,
+    //                             k, k2, l, l2, kl, samples);
+    //             build_sigmas(samples, f_here, Sig0, Sigzsc, Sigp, Sigm);
+    //             SigArr d = M_matrix(Sig0, Sigzsc, Sigp, Sigm);
+
+    //             // -theta
+    //             sample_geometry(p, -cj, -sj, il,
+    //                             cos_psi, sin_psi,
+    //                             k, k2, l, l2, kl, samples);
+    //             build_sigmas(samples, f_here, Sig0, Sigzsc, Sigp, Sigm);
+    //             SigArr e = M_matrix(Sig0, Sigzsc, Sigp, Sigm);
+
+    //             for (int s = 0; s < Nsig; ++s)
+    //                 tacc[s] += d[s] + e[s];
+    //         }
+    //     };
+
+    //     // ---- Main loop over outer grid points ----
+    //     #pragma omp parallel for collapse(3)
+    //     for (int ip = 0; ip < Npsi; ++ip) {
+    //         for (int il = 0; il < Nl; ++il) {
+    //             for (int ik = 0; ik < Nk; ++ik) {
+
+    //                 const double cos_psi = cos_psi_array[ip];
+    //                 const double sin_psi = std::sqrt(std::max(0.0, 1.0 - cos_psi*cos_psi));
+    //                 const double k  = K_array[ik];
+    //                 const double k2 = k * k;
+    //                 const double l  = L_array[il];
+    //                 const double l2 = l * l;
+    //                 const double kl = k * l;
+
+    //                 // f at (ip, il, ik) for all sigma -- needed for both the kinetic
+    //                 // term and as the f(x, x) value in the Sigma builder.
+    //                 SigArr f_here{};
+    //                 for (int s = 0; s < Nsig; ++s)
+    //                     f_here[s] = fH0[sys.idx(s, ip, il, ik)];
+
+    //                 // Kinetic term
+    //                 const double kinetic = 2.0 * (k * l) / omega * cos_psi;
+    //                 for (int s = 0; s < Nsig; ++s)
+    //                     HF[sys.idx(s, ip, il, ik)] = kinetic * f_here[s];
+
+    //                 SigArr sum{};
+
+    //                 // ===== Region 1: [a1, b1], composite midpoint =====
+    //                 if (b1 > a1) {
+    //                     SigArr racc{};
+
+    //                     for (int ii = 0; ii < N1; ++ii) {
+    //                         const double p  = a1 + (ii + 0.5) * h1;   // midpoint of subinterval
+    //                         const double Vp = V(2.0 * p, sp);
+    //                         const double w_p = h1 * p * Vp;            // midpoint weight × Jacobian
+
+    //                         SigArr tacc{};
+    //                         angular_sweep(p, cos_psi, sin_psi, il,
+    //                                     k, k2, l, l2, kl, f_here, tacc);
+
+    //                         for (int s = 0; s < Nsig; ++s)
+    //                             racc[s] += w_p * cheb_w * tacc[s];
+    //                     }
+
+    //                     for (int s = 0; s < Nsig; ++s)
+    //                         sum[s] += racc[s];
+    //                 }
+
+    //                 // ===== Region 2: [b1, pmax], composite midpoint =====
+    //                 // This was silently dropped in the original code.
+
+    //                 for (int s = 0; s < Nsig; ++s)
+    //                     HF[sys.idx(s, ip, il, ik)] += prefac * sum[s];
+    //             }
+    //         }
+    //     }
+    // };
  
     if      (is_gamma_qqbar) run_quadrature(M_qqbar);
     else if (is_qqg)         run_quadrature(M_qqg);
     else if (is_ggg)         run_quadrature(M_ggg);
  
     // ---- enforce psi-independence at l = 0 for all sigma ----
-    for (int sig = 0; sig < Nsig; ++sig) {
-        for (int ik = 0; ik < Nk; ++ik) {
-            dcomplex avg = 0.0;
-            for (int ip = 0; ip < Npsi; ++ip)
-                avg += HF[sys.idx(sig, ip, 0, ik)];
-            avg /= static_cast<double>(Npsi);
-            for (int ip = 0; ip < Npsi; ++ip)
-                HF[sys.idx(sig, ip, 0, ik)] = avg;
-        }
-    }
+    // for (int sig = 0; sig < Nsig; ++sig) {
+    //     for (int ik = 0; ik < Nk; ++ik) {
+    //         dcomplex avg = 0.0;
+    //         for (int ip = 0; ip < Npsi; ++ip)
+    //             avg += HF[sys.idx(sig, ip, 0, ik)];
+    //         avg /= static_cast<double>(Npsi);
+    //         for (int ip = 0; ip < Npsi; ++ip)
+    //             HF[sys.idx(sig, ip, 0, ik)] = avg;
+    //     }
+    // }
  
     return HF;
 }

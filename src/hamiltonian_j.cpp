@@ -529,7 +529,7 @@ vector<dcomplex> Hamiltonian_J(const Physis_J& sys,
 
 
         if (is_gamma_qq) {
-            const int N_p = 261;       // radial points (must be odd)
+            const int N_p = 61;       // radial points (must be odd)
             
             
             auto simpson_weight = [](int i, int N) -> double {
